@@ -1,0 +1,1308 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Parichay Lodge — Hassan, Karnataka</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400;1,700&family=DM+Sans:wght@300;400;500&family=DM+Serif+Display:ital@0;1&display=swap" rel="stylesheet"/>
+  <style>
+    :root {
+      --clay:    #c17d52;
+      --clay2:   #a86640;
+      --sand:    #f5efe6;
+      --stone:   #e8ddd0;
+      --earth:   #3d2e22;
+      --earth2:  #5a4535;
+      --moss:    #4a5c3f;
+      --moss2:   #637a56;
+      --cream:   #faf7f2;
+      --text:    #2c2017;
+      --text2:   #6b5540;
+      --white:   #ffffff;
+      --overlay: rgba(20,12,5,0.35);
+      --overlay2:rgba(20,12,5,0.55);
+      --font-serif: 'Playfair Display', serif;
+      --font-display: 'DM Serif Display', serif;
+      --font-body:  'DM Sans', sans-serif;
+      --trans: 0.35s cubic-bezier(0.4,0,0.2,1);
+      --radius: 6px;
+      --radius2: 16px;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body { background: var(--cream); color: var(--text); font-family: var(--font-body); overflow-x: hidden; }
+    img { max-width: 100%; display: block; }
+    a { text-decoration: none; color: inherit; }
+    ::-webkit-scrollbar { width: 5px; }
+    ::-webkit-scrollbar-track { background: var(--sand); }
+    ::-webkit-scrollbar-thumb { background: var(--clay); border-radius: 3px; }
+
+    /* ── NAV ── */
+    .nav {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 999;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 28px 56px;
+      transition: var(--trans);
+    }
+    .nav.scrolled {
+      background: rgba(250,247,242,0.96);
+      backdrop-filter: blur(16px);
+      padding: 16px 56px;
+      box-shadow: 0 1px 0 rgba(0,0,0,0.06);
+    }
+    .nav-logo { display: flex; align-items: center; gap: 12px; text-decoration:none; }
+    .logo-mark {
+      width: 56px; height: 56px; flex-shrink: 0;
+      filter: drop-shadow(0 2px 10px rgba(0,0,0,0.35));
+      transition: transform 0.3s ease;
+    }
+    .nav-logo:hover .logo-mark { transform: scale(1.06); }
+    .logo-name {
+      font-family: var(--font-serif); font-weight: 700; font-size: 18px;
+      line-height: 1.1; color: var(--white);
+      text-shadow: 0 1px 6px rgba(0,0,0,0.5);
+      transition: color var(--trans);
+    }
+    .nav.scrolled .logo-name { color: var(--earth); text-shadow: none; }
+    .logo-name span { display: block; font-family: var(--font-body); font-style: normal; font-weight: 400; font-size: 10.5px; color: rgba(255,255,255,0.75); letter-spacing: 0.16em; text-transform: uppercase; text-shadow: 0 1px 4px rgba(0,0,0,0.4); transition: color var(--trans); }
+    .nav.scrolled .logo-name span { color: var(--text2); text-shadow: none; }
+    .nav-links { display: flex; gap: 36px; }
+    .nav-links a {
+      font-size: 13.5px; font-weight: 500; color: var(--white);
+      letter-spacing: 0.03em; transition: color var(--trans);
+    }
+    .nav.scrolled .nav-links a { color: var(--earth2); }
+    .nav-links a:hover { color: var(--clay); }
+    .nav-right { display: flex; align-items: center; gap: 16px; }
+    .nav-portal {
+      font-size: 12px; font-weight: 500; letter-spacing: 0.06em;
+      border: 1.5px solid rgba(255,255,255,0.6);
+      padding: 8px 20px; border-radius: 100px;
+      color: var(--white); transition: var(--trans);
+    }
+    .nav.scrolled .nav-portal { border-color: var(--clay); color: var(--clay); }
+    .nav-portal:hover { background: var(--clay); border-color: var(--clay); color: var(--white) !important; }
+    .nav-burger { display: none; background: none; border: none; cursor: pointer; flex-direction: column; gap: 5px; padding: 4px; }
+    .nav-burger span { display: block; width: 24px; height: 1.5px; background: var(--white); transition: var(--trans); }
+    .nav.scrolled .nav-burger span { background: var(--earth); }
+
+    /* mobile menu */
+    .mob-menu {
+      position: fixed; inset: 0; background: var(--earth);
+      z-index: 998; display: flex; flex-direction: column;
+      align-items: center; justify-content: center; gap: 28px;
+      transform: translateY(-100%); transition: transform 0.5s cubic-bezier(0.77,0,0.175,1);
+    }
+    .mob-menu.open { transform: translateY(0); }
+    .mob-menu a { font-family: var(--font-serif); font-size: 28px; color: var(--sand); font-style: italic; }
+    .mob-menu a:hover { color: var(--clay); }
+    .mob-close {
+      position: absolute; top: 24px; right: 28px;
+      background: none; border: none; color: var(--sand);
+      font-size: 28px; cursor: pointer;
+    }
+
+    /* ── HERO ── */
+    .hero {
+      position: relative; min-height: 100vh;
+      display: flex; flex-direction: column;
+      align-items: flex-start; justify-content: center;
+      overflow: hidden; padding-bottom: 0;
+    }
+    .hero-slides { position: absolute; inset: 0; overflow: hidden; }
+    .hero-slide {
+      position: absolute; inset: 0;
+      background-size: cover; background-position: center top;
+      background-repeat: no-repeat; background-attachment: scroll;
+      opacity: 0; transition: opacity 1.2s ease-in-out; will-change: opacity;
+    }
+    .hero-slide.active { opacity: 1; }
+    .hero-dots {
+      display: flex; gap: 8px; z-index: 3;
+    }
+    .hero-dot {
+      width: 8px; height: 8px; border-radius: 50%;
+      background: rgba(255,255,255,0.4); border: none; cursor: pointer;
+      transition: background 0.3s, transform 0.3s; padding: 0;
+    }
+    .hero-dot.active { background: var(--clay); transform: scale(1.3); }
+    .hero-overlay { position: absolute; inset: 0; background: linear-gradient(to right, rgba(15,8,3,0.75) 0%, rgba(15,8,3,0.4) 55%, transparent 100%), linear-gradient(to bottom, rgba(20,12,5,0.3) 0%, transparent 40%, rgba(20,12,5,0.4) 100%); }
+    .hero-content {
+      position: relative; z-index: 1; text-align: left;
+      padding: 0 0 0 7vw; max-width: 580px; width: 100%;
+      align-self: flex-start;
+    }
+    .hero-h1 {
+      font-family: var(--font-display); font-weight: 400;
+      font-size: clamp(42px, 6.5vw, 88px); line-height: 1.0;
+      color: rgba(255,245,230,0.88); letter-spacing: 0.01em; margin-bottom: 18px;
+      text-shadow: 0 2px 20px rgba(0,0,0,0.4);
+    }
+    .hero-h1 em { display: block; font-style: italic; font-weight: 400; color: rgba(224,185,145,0.82); }
+    .hero-h1 span { opacity: 0; transform: translateY(22px); display: block; animation: rise 0.9s forwards; }
+    .hero-h1 span:nth-child(1) { animation-delay: 0.3s; }
+    .hero-h1 span:nth-child(2) { animation-delay: 0.5s; }
+    .hero-h1 span:nth-child(3) { animation-delay: 0.7s; }
+    @keyframes rise { to { opacity:1; transform:translateY(0); } }
+    .hero-sub {
+      font-size: 13.5px; color: rgba(255,255,255,0.68); max-width: 400px;
+      margin: 0 0 32px; line-height: 1.8;
+      opacity: 0; animation: rise 0.9s 0.9s forwards;
+    }
+    .hero-btns {
+      display: flex; gap: 14px; justify-content: flex-start; flex-wrap: wrap;
+      opacity: 0; animation: rise 0.9s 1.1s forwards;
+    }
+    .btn-fill {
+      font-size: 13px; font-weight: 600; letter-spacing: 0.06em;
+      background: var(--clay); color: var(--white);
+      padding: 14px 34px; border-radius: 100px; border: 2px solid var(--clay);
+      transition: var(--trans); cursor: pointer;
+      box-shadow: 0 4px 24px rgba(193,125,82,0.6);
+    }
+    .btn-fill:hover { background: var(--clay2); border-color: var(--clay2); }
+    .btn-outline {
+      font-size: 13px; font-weight: 600; letter-spacing: 0.06em;
+      background: rgba(255,255,255,0.18); color: var(--white);
+      padding: 14px 34px; border-radius: 100px; border: 2px solid rgba(255,255,255,0.9);
+      transition: var(--trans); cursor: pointer;
+      backdrop-filter: blur(8px);
+      box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+    }
+    .btn-outline:hover { background: rgba(255,255,255,0.3); border-color: var(--white); }
+
+    /* hero bottom bar */
+    .hero-bar {
+      position: relative;
+      display: flex; justify-content: center; width: 100%;
+      background: var(--sand);
+      border-top: 1px solid var(--stone);
+      margin: 0; padding: 0;
+      opacity: 1; z-index: 1;
+    }
+    .hbar-item {
+      display: flex; flex-direction: column; align-items: center;
+      padding: 18px 52px; gap: 3px;
+      border-right: 1px solid rgba(0,0,0,0.07);
+    }
+    .hbar-item:last-child { border: none; }
+    .hbar-num { font-family: var(--font-serif); font-weight: 700; font-size: 22px; color: var(--clay); }
+    .hbar-label { font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text2); }
+
+    /* ── TICKER ── */
+    .ticker { overflow: hidden; background: var(--moss); padding: 13px 0; }
+    .ticker-track {
+      display: flex; white-space: nowrap;
+      font-size: 12px; letter-spacing: 0.12em; text-transform: uppercase;
+      color: rgba(255,255,255,0.85);
+      animation: ticker 28s linear infinite;
+    }
+    .ticker-track span { padding: 0 28px; }
+    .ticker-track .sep { color: rgba(255,255,255,0.3); padding: 0 8px; }
+    @keyframes ticker { from { transform:translateX(0); } to { transform:translateX(-50%); } }
+
+    /* ── INTRO SPLIT ── */
+    .intro {
+      display: grid; grid-template-columns: 1fr 1fr;
+      max-width: 1240px; margin: 0 auto; padding: 110px 56px;
+      gap: 80px; align-items: center;
+    }
+    .intro-img-wrap { position: relative; }
+    .intro-img-main {
+      width: 100%; aspect-ratio: 3/4;
+      border-radius: var(--radius2); overflow: hidden;
+      box-shadow: 0 40px 80px rgba(0,0,0,0.15);
+    }
+    .intro-img-main img { width: 100%; height: 100%; object-fit: cover; }
+    .intro-img-float {
+      position: absolute; bottom: -30px; right: -30px;
+      width: 55%; aspect-ratio: 4/3;
+      border-radius: var(--radius2); overflow: hidden;
+      border: 5px solid var(--cream);
+      box-shadow: 0 20px 40px rgba(0,0,0,0.12);
+    }
+    .intro-img-float img { width: 100%; height: 100%; object-fit: cover; }
+    .intro-pill {
+      position: absolute; top: 30px; left: -20px;
+      background: var(--clay); color: var(--white);
+      padding: 12px 20px; border-radius: 100px;
+      font-size: 12px; font-weight: 500; letter-spacing: 0.06em;
+      box-shadow: 0 8px 24px rgba(193,125,82,0.4);
+      white-space: nowrap;
+    }
+    .intro-text { padding-bottom: 30px; }
+    .section-kicker {
+      display: flex; align-items: center; gap: 12px;
+      font-size: 12px; letter-spacing: 0.18em; text-transform: uppercase;
+      color: var(--clay); font-weight: 500; margin-bottom: 20px;
+    }
+    .section-kicker::before { content: ''; display: block; width: 36px; height: 1px; background: var(--clay); }
+    .intro-h2 {
+      font-family: var(--font-serif); font-weight: 700;
+      font-size: clamp(38px, 4vw, 54px); line-height: 1.1;
+      letter-spacing: -0.02em; color: var(--earth); margin-bottom: 20px;
+    }
+    .intro-h2 em { font-style: italic; color: var(--clay); }
+    .intro-text p { font-size: 15px; line-height: 1.85; color: var(--text2); margin-bottom: 16px; }
+    .intro-chips { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 28px; }
+    .chip {
+      font-size: 12px; font-weight: 500; letter-spacing: 0.06em;
+      border: 1.5px solid var(--stone); padding: 7px 16px; border-radius: 100px;
+      color: var(--text2); background: var(--white); transition: var(--trans);
+    }
+    .chip:hover { border-color: var(--clay); color: var(--clay); background: #fdf6ee; }
+
+    /* ── ROOMS ── */
+    .rooms-section { background: var(--sand); padding: 100px 56px; }
+    .sec-head { text-align: center; max-width: 640px; margin: 0 auto 64px; }
+    .sec-h2 {
+      font-family: var(--font-serif); font-weight: 700;
+      font-size: clamp(36px, 4vw, 52px); line-height: 1.1;
+      letter-spacing: -0.02em; color: var(--earth); margin: 16px 0 12px;
+    }
+    .sec-h2 em { font-style: italic; color: var(--clay); }
+    .sec-sub { font-size: 15px; color: var(--text2); line-height: 1.75; }
+    .rooms-grid {
+      display: grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+      gap: 28px; max-width: 1240px; margin: 0 auto;
+    }
+    .room-card {
+      background: var(--white); border-radius: var(--radius2);
+      overflow: hidden; box-shadow: 0 4px 24px rgba(0,0,0,0.06);
+      transition: var(--trans);
+      opacity: 0; transform: translateY(28px);
+    }
+    .room-card.visible { opacity: 1; transform: translateY(0); }
+    .room-card:hover { transform: translateY(-6px); box-shadow: 0 20px 48px rgba(0,0,0,0.12); }
+    .room-img { aspect-ratio: 16/10; overflow: hidden; position: relative; background: var(--stone); }
+    .room-img img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.7s ease; }
+    .room-card:hover .room-img img { transform: scale(1.06); }
+    .room-img-ph { width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; font-size: 52px; background: linear-gradient(135deg, var(--stone), var(--sand)); }
+    .room-badge {
+      position: absolute; top: 14px; left: 14px;
+      background: var(--clay); color: var(--white);
+      font-size: 10px; font-weight: 600; letter-spacing: 0.1em;
+      text-transform: uppercase; padding: 5px 12px; border-radius: 100px;
+    }
+    .room-body { padding: 24px 24px 20px; }
+    .room-body h3 {
+      font-family: var(--font-serif); font-weight: 700;
+      font-size: 21px; margin-bottom: 8px; color: var(--earth);
+    }
+    .room-body p { font-size: 13.5px; color: var(--text2); line-height: 1.65; margin-bottom: 16px; }
+    .room-tags { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 18px; }
+    .room-tag { font-size: 11px; color: var(--text2); background: var(--sand); padding: 4px 11px; border-radius: 100px; }
+    .room-foot {
+      display: flex; align-items: center; justify-content: space-between;
+      padding-top: 16px; border-top: 1px solid var(--stone);
+    }
+    .room-price { font-family: var(--font-serif); font-size: 24px; font-weight: 700; color: var(--clay); }
+    .room-price small { font-family: var(--font-body); font-size: 11px; color: var(--text2); font-weight: 400; }
+    .btn-book {
+      font-size: 12px; font-weight: 500; letter-spacing: 0.06em;
+      background: var(--earth); color: var(--white);
+      padding: 9px 20px; border-radius: 100px; transition: var(--trans);
+    }
+    .btn-book:hover { background: var(--clay); }
+    .skel { animation: skel-pulse 1.4s ease-in-out infinite; background: var(--stone); min-height: 360px; }
+    @keyframes skel-pulse { 0%,100%{opacity:1} 50%{opacity:0.5} }
+
+    /* ── FULL-BLEED BANNER ── */
+    .banner {
+      position: relative; height: 520px; overflow: hidden;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .banner-img {
+      position: absolute; inset: 0;
+      background: url('https://i.ibb.co/yFcSXyzc/Goruru.png') center/cover no-repeat;
+    }
+    .banner-overlay { position: absolute; inset: 0; background: rgba(28,18,8,0.6); }
+    .banner-content { position: relative; z-index: 1; text-align: center; max-width: 700px; padding: 0 24px; }
+    .banner-h2 {
+      font-family: var(--font-serif); font-weight: 900; font-style: italic;
+      font-size: clamp(44px, 6vw, 80px); color: var(--white); line-height: 1;
+      margin-bottom: 20px;
+    }
+    .banner-h2 em { color: #f0d9c0; }
+    .banner-p { font-size: 16px; color: rgba(255,255,255,0.78); margin-bottom: 32px; line-height: 1.7; }
+
+    /* ── AMENITIES ── */
+    .amenities-section { padding: 100px 56px; background: var(--cream); }
+    .amen-grid {
+      display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+      gap: 20px; max-width: 1240px; margin: 0 auto;
+    }
+    .amen-card {
+      background: var(--white); border-radius: var(--radius2);
+      padding: 32px 24px 28px; border: 1.5px solid var(--stone);
+      transition: var(--trans);
+      opacity: 0; transform: translateY(20px);
+      display: flex; flex-direction: column; gap: 0;
+    }
+    .amen-card.visible { opacity: 1; transform: translateY(0); }
+    .amen-card:hover { border-color: var(--clay); box-shadow: 0 8px 32px rgba(193,125,82,0.12); transform: translateY(-4px); }
+    .amen-icon-wrap {
+      width: 52px; height: 52px; border-radius: 14px;
+      background: rgba(193,125,82,0.09); display: flex; align-items: center; justify-content: center;
+      margin-bottom: 18px; transition: var(--trans);
+    }
+    .amen-card:hover .amen-icon-wrap { background: rgba(193,125,82,0.18); }
+    .amen-icon-wrap svg { width: 26px; height: 26px; stroke: var(--clay); fill: none; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+    .amen-card h4 { font-family: var(--font-serif); font-weight: 700; font-size: 16px; margin-bottom: 7px; color: var(--earth); }
+    .amen-card p { font-size: 13px; color: var(--text2); line-height: 1.65; }
+
+    /* ── GALLERY ── */
+    .gallery-section { padding: 100px 0 0; background: var(--sand); }
+    .gallery-section .sec-head { padding: 0 56px; }
+    .gallery-grid {
+      display: grid;
+      grid-template-columns: 2fr 1fr 1fr;
+      grid-template-rows: 300px 300px;
+      gap: 4px; margin-top: 48px;
+    }
+    .g-item {
+      overflow: hidden; position: relative; cursor: pointer;
+      background: var(--stone);
+      opacity: 0; transition: opacity 0.6s, transform 0.6s;
+    }
+    .g-item.visible { opacity: 1; }
+    .g-item:nth-child(1) { grid-row: span 2; }
+    .g-item img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.7s ease; }
+    .g-item:hover img { transform: scale(1.07); }
+    .g-overlay {
+      position: absolute; inset: 0; background: rgba(30,18,8,0);
+      display: flex; align-items: flex-end;
+      transition: background var(--trans);
+    }
+    .g-item:hover .g-overlay { background: rgba(30,18,8,0.4); }
+    .g-caption {
+      padding: 14px 16px; font-size: 12px; font-weight: 500; letter-spacing: 0.08em;
+      text-transform: uppercase; color: var(--white);
+      transform: translateY(10px); opacity: 0;
+      transition: var(--trans);
+    }
+    .g-item:hover .g-caption { transform: translateY(0); opacity: 1; }
+
+    /* Lightbox */
+    .lightbox {
+      position: fixed; inset: 0; background: rgba(0,0,0,0.94);
+      z-index: 2000; display: none; align-items: center; justify-content: center;
+    }
+    .lightbox.open { display: flex; }
+    .lb-img { max-width: 90vw; max-height: 86vh; object-fit: contain; border-radius: var(--radius); }
+    .lb-close { position: absolute; top: 20px; right: 24px; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); color: #fff; font-size: 22px; padding: 8px 14px; cursor: pointer; border-radius: 4px; transition: var(--trans); }
+    .lb-close:hover { background: var(--clay); border-color: var(--clay); }
+    .lb-nav { position: absolute; top: 50%; transform: translateY(-50%); background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); color: #fff; font-size: 28px; width: 52px; height: 52px; cursor: pointer; border-radius: 50%; display: flex; align-items: center; justify-content: center; transition: var(--trans); }
+    .lb-nav:hover { background: var(--clay); border-color: var(--clay); }
+    .lb-prev { left: 20px; }
+    .lb-next { right: 20px; }
+
+    /* ── NEARBY ── */
+    .nearby-section { padding: 100px 56px; background: var(--cream); }
+    .nearby-grid {
+      display: grid; grid-template-columns: repeat(4, 1fr);
+      gap: 20px; max-width: 1300px; margin: 0 auto;
+    }
+    .nearby-card {
+      border-radius: var(--radius2); overflow: hidden;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.07);
+      background: var(--white); transition: var(--trans);
+      opacity: 0; transform: translateY(20px);
+    }
+    .nearby-card.visible { opacity: 1; transform: translateY(0); }
+    .nearby-card:hover { transform: translateY(-5px); box-shadow: 0 16px 40px rgba(0,0,0,0.12); }
+    .nearby-thumb {
+      height: 180px; overflow: hidden;
+      background: linear-gradient(135deg, var(--moss), var(--earth));
+    }
+    .nearby-thumb img {
+      width: 100%; height: 100%; object-fit: cover;
+      transition: transform 0.5s ease;
+    }
+    .nearby-card:hover .nearby-thumb img { transform: scale(1.06); }
+    .nearby-body { padding: 20px; }
+    .nearby-body h3 { font-family: var(--font-serif); font-weight: 700; font-size: 18px; margin-bottom: 8px; color: var(--earth); }
+    .nearby-body p { font-size: 13px; color: var(--text2); line-height: 1.65; margin-bottom: 12px; }
+    .nearby-dist { font-size: 11px; font-weight: 500; letter-spacing: 0.08em; text-transform: uppercase; color: var(--clay); }
+
+    /* ── CONTACT ── */
+    .contact-section { padding: 80px 56px; background: var(--earth); }
+    .contact-inner { max-width: 1240px; margin: 0 auto; display: grid; grid-template-columns: 1fr 1.3fr; gap: 60px; align-items: start; }
+    @media(min-width:769px) { .contact-inner { grid-template-columns: 1fr 1.3fr !important; } }
+    .contact-left { display: flex; flex-direction: column; }
+    .contact-right { display: flex; flex-direction: column; padding-top: 168px; }
+    @media (max-width: 768px) {
+      .contact-inner { grid-template-columns: 1fr !important; gap: 36px; }
+    }
+    .contact-kicker { color: var(--clay); }
+    .contact-kicker::before { background: var(--clay); }
+    .contact-h2 { font-family: var(--font-serif); font-weight: 700; font-size: clamp(36px, 4vw, 52px); line-height: 1.1; color: var(--sand); letter-spacing: -0.02em; margin: 16px 0 16px; }
+    .contact-h2 em { font-style: italic; color: var(--clay); }
+    .contact-lead { font-size: 15px; color: rgba(245,239,230,0.65); line-height: 1.8; margin-bottom: 36px; }
+    .cinfo-list { display: flex; flex-direction: column; gap: 14px; }
+    .cinfo {
+      display: flex; gap: 16px; align-items: flex-start;
+      padding: 16px 18px; border-radius: var(--radius);
+      background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.08);
+      transition: var(--trans);
+    }
+    .cinfo:hover { background: rgba(255,255,255,0.08); border-color: var(--clay); }
+    .cinfo-icon { font-size: 20px; flex-shrink: 0; margin-top: 1px; }
+    .cinfo strong { display: block; font-size: 11px; font-weight: 500; letter-spacing: 0.12em; text-transform: uppercase; color: rgba(245,239,230,0.45); margin-bottom: 3px; }
+    .cinfo span, .cinfo a { font-size: 14px; color: var(--sand); }
+    .cinfo a:hover { color: var(--clay); }
+    .map-wrap { border-radius: var(--radius2); overflow: hidden; height: 340px; border: 1px solid rgba(255,255,255,0.08); }
+    .map-wrap iframe { display: block; }
+    /* ── BOOKING FORM ── */
+    .booking-section {
+      margin-top: 32px; background: rgba(255,255,255,0.06);
+      border: 1px solid rgba(255,255,255,0.15); border-radius: 16px; overflow: hidden;
+    }
+    .booking-section-head {
+      padding: 13px 18px; border-bottom: 1px solid rgba(255,255,255,0.1);
+      display: flex; align-items: center; gap: 10px;
+      font-family: var(--font-serif); font-size: 17px; font-weight: 700; color: var(--clay);
+    }
+    .booking-form-grid {
+      padding: 16px 18px; display: flex; flex-direction: column; gap: 9px;
+    }
+    .booking-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .booking-input {
+      width: 100%; padding: 10px 12px; border-radius: 9px; font-size: 13px;
+      border: 1px solid rgba(255,255,255,0.2); background: rgba(255,255,255,0.08);
+      color: var(--white); outline: none; box-sizing: border-box;
+      font-family: var(--font-sans); transition: border 0.2s;
+    }
+    .booking-input::placeholder { color: rgba(255,255,255,0.4); }
+    .booking-input:focus { border-color: var(--clay); background: rgba(255,255,255,0.12); }
+    .booking-input option { color: var(--earth); background: var(--sand); }
+    .booking-submit {
+      width: 100%; padding: 12px; border-radius: 9px; border: none; cursor: pointer;
+      background: var(--clay); color: var(--white); font-size: 15px; font-weight: 600;
+      font-family: var(--font-sans); letter-spacing: 0.04em; transition: var(--trans);
+      display: flex; align-items: center; justify-content: center; gap: 8px;
+    }
+    .booking-submit:hover { background: var(--earth); transform: translateY(-1px); }
+    .booking-submit:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+    .booking-success {
+      display: none; text-align: center; padding: 24px 22px;
+      color: var(--white);
+    }
+    .booking-success-icon { font-size: 48px; margin-bottom: 12px; }
+    .booking-success h3 { font-family: var(--font-serif); font-size: 20px; color: var(--clay); margin-bottom: 8px; }
+    .booking-success p { font-size: 14px; color: rgba(255,255,255,0.7); line-height: 1.7; }
+    .book-form-wrap {
+      background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.15);
+      border-radius: 14px; overflow: hidden;
+    }
+    .book-form-head {
+      display: flex; align-items: center; gap: 10px;
+      padding: 14px 18px; cursor: pointer; color: var(--white);
+      font-size: 14px; font-weight: 600; letter-spacing: 0.02em;
+      transition: background 0.2s;
+    }
+    .book-form-head:hover { background: rgba(255,255,255,0.07); }
+    .book-form-body { padding: 4px 18px 18px; display: flex; flex-direction: column; gap: 10px; }
+    .book-input {
+      width: 100%; padding: 11px 14px; border-radius: 8px; font-size: 13.5px;
+      border: 1px solid rgba(255,255,255,0.2); background: rgba(255,255,255,0.1);
+      color: var(--white); outline: none; box-sizing: border-box;
+      font-family: var(--font-sans); transition: border 0.2s;
+    }
+    .book-input::placeholder { color: rgba(255,255,255,0.45); }
+    .book-input:focus { border-color: var(--clay); }
+    .book-input option { color: var(--earth); background: var(--sand); }
+    .wa-btn {
+      display: flex; align-items: center; justify-content: center; gap: 10px;
+      margin-top: 14px; padding: 14px; background: #25d366;
+      color: var(--white); border-radius: var(--radius2);
+      font-size: 14px; font-weight: 500; transition: var(--trans);
+    }
+    .wa-btn:hover { background: #1eb855; }
+
+    /* ── FOOTER ── */
+    .footer { background: #1a110a; padding: 36px 56px; }
+    .footer-inner { max-width: 1240px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 20px; }
+    .footer-links { display: flex; gap: 28px; flex-wrap: wrap; }
+    .footer-links a { font-size: 12px; letter-spacing: 0.08em; text-transform: uppercase; color: rgba(245,239,230,0.4); transition: color var(--trans); }
+    .footer-links a:hover { color: var(--clay); }
+    .footer-copy { font-size: 12px; color: rgba(245,239,230,0.3); letter-spacing: 0.06em; }
+
+    /* ── SCROLL REVEAL ── */
+    .reveal { opacity: 0; transform: translateY(28px); transition: opacity 0.7s, transform 0.7s; }
+    .reveal.visible { opacity: 1; transform: translateY(0); }
+
+    /* ── RESPONSIVE ── */
+    @media(max-width:1024px) {
+      .intro { grid-template-columns: 1fr; gap: 48px; padding: 80px 32px; }
+      .intro-img-float { display: none; }
+      .gallery-grid { grid-template-columns: 1fr 1fr; grid-template-rows: auto; }
+      .g-item:nth-child(1) { grid-row: auto; }
+    }
+    @media(max-width:768px) {
+      .nav { padding: 18px 24px; }
+      .nav.scrolled { padding: 12px 24px; }
+      .nav-links, .nav-right { display: none; }
+      .nav-burger { display: flex; }
+      section, .rooms-section, .amenities-section, .nearby-section, .contact-section, .nearby-section { padding: 72px 24px; }
+      .intro { padding: 72px 24px; }
+      .hbar-item { padding: 14px 20px; }
+      .gallery-grid { grid-template-columns: 1fr; grid-template-rows: auto; }
+      .footer { padding: 28px 24px; }
+      .footer-inner { flex-direction: column; align-items: flex-start; }
+    }
+    @media(max-width:480px) {
+      .hero-h1 { font-size: 44px; }
+      .rooms-grid { grid-template-columns: 1fr; }
+      .amen-grid { grid-template-columns: 1fr 1fr; }
+      .nearby-grid { grid-template-columns: 1fr 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav class="nav" id="nav">
+  <a href="index.html" class="nav-logo">
+<svg class="logo-mark" viewBox="40 10 200 180" xmlns="http://www.w3.org/2000/svg" style="width:56px;height:56px">
+      <defs>
+        <linearGradient id="nsky" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#f9c97a"/><stop offset="45%" stop-color="#f4a45a"/><stop offset="100%" stop-color="#e8855a"/></linearGradient>
+        <linearGradient id="nsun" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#fde68a"/><stop offset="100%" stop-color="#f59e0b"/></linearGradient>
+        <linearGradient id="nh1" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#5a7a4a"/><stop offset="100%" stop-color="#3d5c30"/></linearGradient>
+        <linearGradient id="nh2" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#4a6840"/><stop offset="100%" stop-color="#2e4a22"/></linearGradient>
+        <linearGradient id="nh3" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#3a5430"/><stop offset="100%" stop-color="#243820"/></linearGradient>
+        <linearGradient id="nrd" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#c4a882"/><stop offset="100%" stop-color="#8b6e4a"/></linearGradient>
+        <linearGradient id="ngr" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#7a9660"/><stop offset="100%" stop-color="#4a6840"/></linearGradient>
+        <radialGradient id="ngl" cx="50%" cy="50%" r="50%"><stop offset="0%" stop-color="#fff8dc" stop-opacity="0.9"/><stop offset="40%" stop-color="#fde68a" stop-opacity="0.6"/><stop offset="100%" stop-color="#f59e0b" stop-opacity="0"/></radialGradient>
+        <clipPath id="nclip"><rect x="40" y="10" width="200" height="180" rx="6"/></clipPath>
+        <path id="nta" d="M 104 78 A 36 36 0 0 1 176 78" fill="none"/>
+        <path id="nba" d="M 106 82 A 36 36 0 0 0 174 82" fill="none"/>
+      </defs>
+      <g clip-path="url(#nclip)">
+        <rect x="40" y="10" width="200" height="180" fill="url(#nsky)"/>
+        <circle cx="140" cy="78" r="55" fill="url(#ngl)"/>
+        <circle cx="140" cy="78" r="22" fill="url(#nsun)"/>
+        <circle cx="140" cy="78" r="17" fill="#fde68a"/>
+        <g stroke="#fde68a" stroke-width="1.5" stroke-linecap="round" opacity="0.7">
+          <line x1="140" y1="48" x2="140" y2="42"/><line x1="163" y1="55" x2="167" y2="51"/>
+          <line x1="170" y1="78" x2="176" y2="78"/><line x1="163" y1="101" x2="167" y2="105"/>
+          <line x1="117" y1="55" x2="113" y2="51"/><line x1="110" y1="78" x2="104" y2="78"/>
+          <line x1="117" y1="101" x2="113" y2="105"/>
+        </g>
+        <circle cx="140" cy="78" r="33" fill="none" stroke="rgba(255,255,255,0.15)" stroke-width="0.5"/>
+        <text font-family="Georgia,serif" font-size="7.5" font-weight="700" fill="#3d2e22" letter-spacing="2.2"><textPath href="#nta" startOffset="6%">PARICHAY · LODGE</textPath></text>
+        <text font-family="Georgia,serif" font-size="6" fill="#3d2e22" letter-spacing="1.5" opacity="0.85"><textPath href="#nba" startOffset="5%">HASSAN  ·  KARNATAKA</textPath></text>
+        <path d="M40 120 Q70 88 100 102 Q120 92 140 98 Q160 88 185 96 Q205 88 240 108 L240 145 L40 145 Z" fill="#7aab60" opacity="0.5"/>
+        <path d="M40 135 Q65 105 90 118 Q110 108 135 116 Q158 106 178 114 Q200 105 240 122 L240 155 L40 155 Z" fill="url(#nh1)"/>
+        <path d="M40 148 Q55 128 75 138 Q95 126 118 136 Q138 124 158 134 Q178 122 205 132 Q220 124 240 136 L240 165 L40 165 Z" fill="url(#nh2)"/>
+        <path d="M40 162 Q60 148 80 156 Q100 144 125 154 Q148 142 168 152 Q190 140 215 150 Q228 144 240 150 L240 190 L40 190 Z" fill="url(#nh3)"/>
+        <rect x="40" y="170" width="200" height="20" fill="url(#ngr)"/>
+        <path d="M105 190 L131 110 L149 110 L175 190 Z" fill="url(#nrd)"/>
+        <path d="M118 190 L134 118 L146 118 L162 190 Z" fill="#d4b892" opacity="0.4"/>
+        <line x1="140" y1="185" x2="140" y2="170" stroke="white" stroke-width="2" stroke-linecap="round" opacity="0.8"/>
+        <line x1="140" y1="162" x2="140" y2="148" stroke="white" stroke-width="1.5" stroke-linecap="round" opacity="0.6"/>
+        <rect x="74" y="152" width="3.5" height="20" rx="1" fill="#3d2e22"/>
+        <ellipse cx="76" cy="152" rx="11" ry="8" fill="#2e5028"/><ellipse cx="76" cy="145" rx="9" ry="7" fill="#3a6432"/><ellipse cx="76" cy="138" rx="7" ry="6" fill="#4a7a3e"/>
+        <rect x="60" y="158" width="3" height="16" rx="1" fill="#3d2e22"/>
+        <ellipse cx="62" cy="158" rx="9" ry="7" fill="#2e5028"/><ellipse cx="62" cy="152" rx="7" ry="6" fill="#3a6432"/><ellipse cx="62" cy="146" rx="5" ry="5" fill="#4a7a3e"/>
+        <rect x="202" y="148" width="3.5" height="22" rx="1" fill="#3d2e22"/>
+        <ellipse cx="204" cy="148" rx="12" ry="9" fill="#2e5028"/><ellipse cx="204" cy="140" rx="10" ry="8" fill="#3a6432"/><ellipse cx="204" cy="133" rx="7" ry="6" fill="#4a7a3e"/>
+        <rect x="216" y="155" width="3" height="18" rx="1" fill="#3d2e22"/>
+        <ellipse cx="218" cy="155" rx="9" ry="7" fill="#2e5028"/><ellipse cx="218" cy="148" rx="7" ry="6" fill="#3a6432"/><ellipse cx="218" cy="143" rx="5" ry="5" fill="#4a7a3e"/>
+        <path d="M80 60 Q83 57 86 60" fill="none" stroke="#3d2e22" stroke-width="1.2" stroke-linecap="round"/>
+        <path d="M90 52 Q93 49 96 52" fill="none" stroke="#3d2e22" stroke-width="1.2" stroke-linecap="round"/>
+        <path d="M175 48 Q178 45 181 48" fill="none" stroke="#3d2e22" stroke-width="1.2" stroke-linecap="round"/>
+        <rect x="133" y="106" width="14" height="9" fill="#3d2e22" opacity="0.5"/>
+        <path d="M131 106 L140 100 L149 106 Z" fill="#2e1f14" opacity="0.6"/>
+      </g>
+      <rect x="40" y="10" width="200" height="180" rx="6" fill="none" stroke="#c17d52" stroke-width="2"/>
+    </svg>
+    <div class="logo-name">Parichay Lodge<span>Hassan · Karnataka</span></div>
+  </a>
+  <div class="nav-links">
+    <a href="#rooms">Rooms</a>
+    <a href="#amenities">Amenities</a>
+    <a href="#gallery">Gallery</a>
+    <a href="#nearby">Explore</a>
+    <a href="#contact">Contact</a>
+  </div>
+  <div class="nav-right">
+    <a href="pages/staff-login.html" class="nav-portal">Staff Portal</a>
+  </div>
+  <button class="nav-burger" id="burger" aria-label="Menu">
+    <span></span><span></span><span></span>
+  </button>
+</nav>
+
+<!-- MOBILE MENU -->
+<div class="mob-menu" id="mobMenu">
+  <button class="mob-close" onclick="closeMob()">✕</button>
+  <a href="#rooms" onclick="closeMob()">Rooms</a>
+  <a href="#amenities" onclick="closeMob()">Amenities</a>
+  <a href="#gallery" onclick="closeMob()">Gallery</a>
+  <a href="#nearby" onclick="closeMob()">Explore</a>
+  <a href="#contact" onclick="closeMob()">Contact</a>
+  <a href="pages/staff-login.html" style="font-size:14px;color:var(--clay);border:1.5px solid var(--clay);padding:10px 28px;border-radius:100px;font-family:var(--font-body)">Staff Portal</a>
+</div>
+
+<!-- HERO -->
+<section class="hero" id="home">
+  <div class="hero-slides" id="heroSlides">
+    <div class="hero-slide active" style="background-image:url('https://images.unsplash.com/photo-1510798831971-661eb04b3739?w=1920&q=95')"></div>
+  </div>
+  <div class="hero-overlay"></div>
+  <div id="heroDots" style="position:absolute;bottom:16px;left:50%;transform:translateX(-50%);display:flex;gap:8px;z-index:3;"></div>
+  <div class="hero-content">
+    <h1 class="hero-h1">
+      <span>Rest Among</span>
+      <span><em>Karnataka's</em></span>
+      <span>Heartland</span>
+    </h1>
+    <p class="hero-sub">A welcoming lodge in the gateway to Hoysala country — clean rooms, warm hosts, and the beauty of Hassan at your doorstep.</p>
+    <div class="hero-btns">
+      <a href="#rooms" class="btn-fill">View Rooms</a>
+      <a href="#contact" class="btn-outline">Book a Stay</a>
+    </div>
+  </div>
+</section>
+<div class="hero-bar">
+  <div class="hbar-item"><span class="hbar-num" id="statRooms">12+</span><span class="hbar-label">Rooms</span></div>
+  <div class="hbar-item"><span class="hbar-num">4.8★</span><span class="hbar-label">Rating</span></div>
+  <div class="hbar-item"><span class="hbar-num">24/7</span><span class="hbar-label">Service</span></div>
+  <div class="hbar-item"><span class="hbar-num">2 km</span><span class="hbar-label">City Center</span></div>
+</div>
+<!-- TICKER -->
+<div class="ticker">
+  <div class="ticker-track">
+    <span>Comfortable Stay</span><span class="sep">✦</span>
+    <span>Hassan City</span><span class="sep">✦</span>
+    <span>Belur & Halebidu Nearby</span><span class="sep">✦</span>
+    <span>Power Backup</span><span class="sep">✦</span>
+    <span>Hot Water</span><span class="sep">✦</span>
+    <span>CCTV Security</span><span class="sep">✦</span>
+    <span>Laundry Service</span><span class="sep">✦</span>
+    <span>Easy Commute</span><span class="sep">✦</span>
+    <span>Karnataka Heritage</span><span class="sep">✦</span>
+    <span>TV with Dish Cable</span><span class="sep">✦</span>
+    <span>Comfortable Stay</span><span class="sep">✦</span>
+    <span>Hassan City</span><span class="sep">✦</span>
+    <span>Belur & Halebidu Nearby</span><span class="sep">✦</span>
+    <span>Power Backup</span><span class="sep">✦</span>
+    <span>Hot Water</span><span class="sep">✦</span>
+    <span>CCTV Security</span><span class="sep">✦</span>
+    <span>Laundry Service</span><span class="sep">✦</span>
+    <span>Easy Commute</span><span class="sep">✦</span>
+    <span>Karnataka Heritage</span><span class="sep">✦</span>
+  </div>
+</div>
+
+<!-- INTRO -->
+<section style="background:var(--cream); padding:0;">
+  <div class="intro">
+    <div class="intro-img-wrap reveal" id="storyImagesGrid">
+      <div class="intro-img-main">
+        <img src="https://images.unsplash.com/photo-1582719508461-905c673771fd?w=700&q=80" alt="Lodge room"/>
+      </div>
+      <div class="intro-img-float">
+        <img src="https://images.unsplash.com/photo-1444201983204-c43cbd584d93?w=500&q=80" alt="Lodge view"/>
+      </div>
+      <div class="intro-pill">✓ Verified Property</div>
+    </div>
+    <div class="intro-text reveal">
+      <div class="section-kicker">Our Story</div>
+      <h2 class="intro-h2">A Lodge Built on<br/><em>Warmth & Welcome</em></h2>
+      <p>Parichay Lodge was born from a simple belief — every traveller deserves a clean, comfortable, and genuinely welcoming place to rest, even for just a night.</p>
+      <p>Nestled in Hassan — the gateway to the Hoysala heritage sites of Belur and Halebidu — we serve pilgrims, tourists, and business travellers with equal care and attention. Our staff are locals who know this land deeply.</p>
+      <div class="intro-chips">
+        <div class="chip">Clean Rooms</div>
+        <div class="chip">Local Hospitality</div>
+        <div class="chip">Heritage Location</div>
+        <div class="chip">Fair Pricing</div>
+        <div class="chip">24/7 Service</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ROOMS -->
+<section class="rooms-section" id="rooms">
+  <div class="sec-head reveal">
+    <div class="section-kicker" style="justify-content:center">Accommodation</div>
+    <h2 class="sec-h2">Our <em>Rooms</em></h2>
+    <p class="sec-sub">Each room is crafted for rest — clean, thoughtfully furnished, and everything you need for a comfortable stay.</p>
+  </div>
+  <div class="rooms-grid" id="roomsGrid">
+    <div class="room-card skel visible"></div>
+    <div class="room-card skel visible"></div>
+    <div class="room-card skel visible"></div>
+  </div>
+</section>
+
+<!-- FULL-BLEED BANNER -->
+<div class="banner">
+  <div class="banner-img"></div>
+  <div class="banner-overlay"></div>
+  <div class="banner-content">
+    <h2 class="banner-h2">Where Every Stay<br/><em>Feels Like Home</em></h2>
+    <p class="banner-p">Set in the heart of Hassan with easy access to some of Karnataka's most spectacular temple architecture and natural landscapes.</p>
+    <a href="#contact" class="btn-fill">Plan Your Visit</a>
+  </div>
+</div>
+
+<!-- AMENITIES -->
+<section class="amenities-section" id="amenities">
+  <div class="sec-head reveal">
+    <div class="section-kicker" style="justify-content:center">What We Offer</div>
+    <h2 class="sec-h2">All the <em>Comforts</em></h2>
+    <p class="sec-sub">Everything you need for a comfortable, worry-free stay — all included.</p>
+  </div>
+  <div class="amen-grid">
+
+    <div class="amen-card">
+      <div class="amen-icon-wrap">
+        <svg viewBox="0 0 24 24"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+      </div>
+      <h4>24/7 Power Backup</h4>
+      <p>Uninterrupted electricity around the clock — no disruptions to your stay.</p>
+    </div>
+
+    <div class="amen-card">
+      <div class="amen-icon-wrap">
+        <svg viewBox="0 0 24 24"><path d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20z"/><path d="M12 8v4l3 3"/></svg>
+      </div>
+      <h4>Hot Water All Day</h4>
+      <p>Solar-heated with backup systems for consistent hot water at any hour.</p>
+    </div>
+
+    <div class="amen-card">
+      <div class="amen-icon-wrap">
+        <svg viewBox="0 0 24 24"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7z"/><circle cx="12" cy="12" r="3"/></svg>
+      </div>
+      <h4>CCTV Surveillance</h4>
+      <p>24/7 security cameras across all common areas for your safety and peace of mind.</p>
+    </div>
+
+    <div class="amen-card">
+      <div class="amen-icon-wrap">
+        <svg viewBox="0 0 24 24"><path d="M3 6h18M3 12h18M3 18h18"/><circle cx="7" cy="6" r="1" fill="var(--clay)" stroke="none"/><circle cx="7" cy="12" r="1" fill="var(--clay)" stroke="none"/><circle cx="7" cy="18" r="1" fill="var(--clay)" stroke="none"/></svg>
+      </div>
+      <h4>Laundry Service</h4>
+      <p>Same-day washing and folding service available for all guests on request.</p>
+    </div>
+
+    <div class="amen-card">
+      <div class="amen-icon-wrap">
+        <svg viewBox="0 0 24 24"><rect x="1" y="3" width="15" height="13" rx="2"/><path d="M16 8h4l3 3v5h-7V8z"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>
+      </div>
+      <h4>Easy Commute Options</h4>
+      <p>Auto-rickshaws and cabs readily available at the gate. Minutes from bus stand & railway.</p>
+    </div>
+
+    <div class="amen-card">
+      <div class="amen-icon-wrap">
+        <svg viewBox="0 0 24 24"><path d="M20 7H4a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2z"/><path d="M8 7V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><path d="M12 12v.01"/></svg>
+      </div>
+      <h4>Room Service</h4>
+      <p>In-room dining and regular housekeeping to keep your stay comfortable.</p>
+    </div>
+
+    <div class="amen-card">
+      <div class="amen-icon-wrap">
+        <svg viewBox="0 0 24 24"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+      </div>
+      <h4>Prime Location</h4>
+      <p>Central Hassan — quick access to Belur, Halebidu temples and local markets.</p>
+    </div>
+
+    <div class="amen-card">
+      <div class="amen-icon-wrap">
+        <svg viewBox="0 0 24 24"><rect x="2" y="7" width="20" height="15" rx="2"/><path d="M17 2l-5 5-5-5"/><path d="M12 12v4"/><path d="M9 19h6"/></svg>
+      </div>
+      <h4>TV with Dish Cable</h4>
+      <p>In-room television with full dish cable connection for news, entertainment and regional channels.</p>
+    </div>
+
+  </div>
+</section>
+
+<!-- GALLERY -->
+<section class="gallery-section" id="gallery">
+  <div class="sec-head reveal">
+    <div class="section-kicker" style="justify-content:center">Gallery</div>
+    <h2 class="sec-h2">A Glimpse <em>Inside</em></h2>
+  </div>
+  <div class="gallery-grid" id="galleryGrid">
+    <div class="g-item"><div style="width:100%;height:100%;background:var(--stone)"></div></div>
+    <div class="g-item"><div style="width:100%;height:100%;background:var(--stone)"></div></div>
+    <div class="g-item"><div style="width:100%;height:100%;background:var(--stone)"></div></div>
+    <div class="g-item"><div style="width:100%;height:100%;background:var(--stone)"></div></div>
+    <div class="g-item"><div style="width:100%;height:100%;background:var(--stone)"></div></div>
+  </div>
+</section>
+
+<!-- NEARBY -->
+<section class="nearby-section" id="nearby">
+  <div class="sec-head reveal">
+    <div class="section-kicker" style="justify-content:center">Explore</div>
+    <h2 class="sec-h2">What's <em>Nearby</em></h2>
+    <p class="sec-sub">Hassan is the perfect base to explore some of Karnataka's most iconic destinations.</p>
+  </div>
+  <div class="nearby-grid">
+
+    <div class="nearby-card reveal">
+      <div class="nearby-thumb">
+        <img src="https://i.ibb.co/MD6t5DJn/Chenna-Keshava-Temple-Belur.jpg" alt="Belur Temple" loading="lazy"/>
+      </div>
+      <div class="nearby-body">
+        <h3>Belur Temple</h3>
+        <p>38 km — The crown jewel of Hoysala architecture, featuring exquisite 12th-century stone carvings.</p>
+        <span class="nearby-dist">~45 min drive</span>
+      </div>
+    </div>
+
+    <div class="nearby-card reveal">
+      <div class="nearby-thumb">
+        <img src="https://i.ibb.co/QBZw9Qj/Halebeedu.jpg" alt="Halebidu Temple" loading="lazy"/>
+      </div>
+      <div class="nearby-body">
+        <h3>Halebidu</h3>
+        <p>32 km — Twin temple complex with some of the most intricate stone sculptures in all of India.</p>
+        <span class="nearby-dist">~40 min drive</span>
+      </div>
+    </div>
+
+    <div class="nearby-card reveal">
+      <div class="nearby-thumb">
+        <img src="https://i.ibb.co/SgtL0yx/Goruru.jpg" alt="Gorur Dam" loading="lazy"/>
+      </div>
+      <div class="nearby-body">
+        <h3>Gorur Dam</h3>
+        <p>16 km — A serene backwater landscape on the Hemavathi River, perfect for evening outings.</p>
+        <span class="nearby-dist">~20 min drive</span>
+      </div>
+    </div>
+
+    <div class="nearby-card reveal">
+      <div class="nearby-thumb">
+        <img src="https://i.ibb.co/whbPFJxq/Hasanamba-Temple.jpg" alt="Hasanamba Temple" loading="lazy"/>
+      </div>
+      <div class="nearby-body">
+        <h3>Hasanamba Temple</h3>
+        <p>2 km — Ancient temple dedicated to Goddess Hasanamba, open only a few days a year — a rare spiritual experience.</p>
+        <span class="nearby-dist">~5 min drive</span>
+      </div>
+    </div>
+
+    <div class="nearby-card reveal">
+      <div class="nearby-thumb">
+        <img src="https://i.ibb.co/VWMNPd1H/Sravanabelagola.jpg" alt="Sravanabelagola" loading="lazy"/>
+      </div>
+      <div class="nearby-body">
+        <h3>Sravanabelagola</h3>
+        <p>49 km — Home to the towering 18-metre monolithic statue of Gomateshwara, one of the tallest Jain shrines in the world.</p>
+        <span class="nearby-dist">~1 hr drive</span>
+      </div>
+    </div>
+
+    <div class="nearby-card reveal">
+      <div class="nearby-thumb">
+        <img src="https://i.ibb.co/xypVwQR/Shettihalli.jpg" alt="Settihalli Church" loading="lazy"/>
+      </div>
+      <div class="nearby-body">
+        <h3>Settihalli Church</h3>
+        <p>40 km — A hauntingly beautiful submerged church that emerges from the Hemavathi reservoir during summer — a photographer's dream.</p>
+        <span class="nearby-dist">~50 min drive</span>
+      </div>
+    </div>
+
+    <div class="nearby-card reveal">
+      <div class="nearby-thumb">
+        <img src="https://i.ibb.co/h1Zz1XTF/Sakaleshpura.jpg" alt="Sakleshpur" loading="lazy"/>
+      </div>
+      <div class="nearby-body">
+        <h3>Sakleshpur</h3>
+        <p>58 km — Misty Western Ghats hill station with lush coffee estates and trekking trails.</p>
+        <span class="nearby-dist">~1.5 hr drive</span>
+      </div>
+    </div>
+
+    <div class="nearby-card reveal">
+      <div class="nearby-thumb">
+        <img src="https://i.ibb.co/hJ0bzMBY/Chikkamagaluru.jpg" alt="Chikkamagaluru" loading="lazy"/>
+      </div>
+      <div class="nearby-body">
+        <h3>Chikkamagaluru</h3>
+        <p>77 km — The coffee capital of India, nestled in the Western Ghats with scenic hills, waterfalls and trekking routes.</p>
+        <span class="nearby-dist">~1.5 hr drive</span>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- CONTACT -->
+<section class="contact-section" id="contact">
+  <div class="contact-inner">
+
+    <!-- LEFT: Contact Info + WhatsApp -->
+    <div class="contact-left">
+      <div class="section-kicker contact-kicker">Get in Touch</div>
+      <h2 class="contact-h2">Plan Your<br/><em>Stay with Us</em></h2>
+      <p class="contact-lead">Reach out to check availability, ask about amenities, or make a reservation. We're always happy to help you plan your visit to Hassan.</p>
+      <div class="cinfo-list">
+        <a href="tel:+91XXXXXXXXXX" class="cinfo" id="ciPhone">
+          <span class="cinfo-icon">📞</span>
+          <div><strong>Call Us</strong><span id="phoneNum">+91 XXXXX XXXXX</span><span id="phoneNum2" style="display:none;margin-top:3px;font-size:13px;color:rgba(255,255,255,0.65)"></span></div>
+        </a>
+        <a href="mailto:info@parichaylodge.com" class="cinfo" id="ciEmail">
+          <span class="cinfo-icon">✉️</span>
+          <div><strong>Email</strong><span id="emailAddr">info@parichaylodge.com</span></div>
+        </a>
+        <div class="cinfo">
+          <span class="cinfo-icon">📍</span>
+          <div><strong>Address</strong><span id="addrText">Hassan, Karnataka, India</span></div>
+        </div>
+        <div class="cinfo">
+          <span class="cinfo-icon">🕐</span>
+          <div><strong>Check-in / Check-out</strong><span id="timingsText">Check-in: 12:00 PM · Check-out: 11:00 AM</span></div>
+        </div>
+      </div>
+      <a href="https://wa.me/918722332943?text=Welcome%20to%20Parichay%20Lodge%2C%20How%20may%20I%20assist%20you%3F" class="wa-btn" id="waBtn" target="_blank" rel="noopener" style="margin-top:24px;display:inline-flex">
+        <svg viewBox="0 0 24 24" fill="currentColor" width="20" height="20"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+        Chat on WhatsApp
+      </a>
+    </div>
+
+    <!-- RIGHT: Map + Book Your Room -->
+    <div class="contact-right">
+      <div class="map-wrap" style="height:200px">
+        <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3887.491191791094!2d76.09487147412085!3d13.004362214161082!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3ba5493b829803f5%3A0xc4bcc3fac89ba861!2sParichay%20Lodge!5e0!3m2!1sen!2sin!4v1778958892308!5m2!1sen!2sin" width="100%" height="100%" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+      </div>
+
+      <div class="booking-section" id="bookingSection" style="margin-top:14px">
+        <div class="booking-section-head">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="18" height="18"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
+          Book Your Room
+        </div>
+        <div class="booking-form-grid" id="bookingFormGrid">
+          <div class="booking-row">
+            <input type="text" id="rbName"  class="booking-input" placeholder="Full Name *"/>
+            <input type="tel"  id="rbPhone" class="booking-input" placeholder="Phone Number *"/>
+          </div>
+          <div class="booking-row">
+            <input type="date" id="rbCheckin"  class="booking-input" title="Check-in Date"/>
+            <input type="date" id="rbCheckout" class="booking-input" title="Check-out Date"/>
+          </div>
+          <div class="booking-row">
+            <select id="rbOccupancy" class="booking-input">
+              <option value="">Number of Occupants *</option>
+              <option>1 Person</option><option>2 Persons</option><option>3 Persons</option>
+              <option>4 Persons</option><option>5 Persons</option><option>6+ Persons</option>
+            </select>
+            <select id="rbRooms" class="booking-input">
+              <option value="">Rooms Required *</option>
+              <option>1 Room</option><option>2 Rooms</option><option>3 Rooms</option>
+              <option>4 Rooms</option><option>5+ Rooms</option>
+            </select>
+          </div>
+          <textarea id="rbNote" class="booking-input" rows="2" placeholder="Any special requests? (optional)" style="resize:none"></textarea>
+          <button class="booking-submit" id="rbSubmit" onclick="submitRoomBooking()">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="18" height="18"><path d="M22 2L11 13M22 2L15 22l-4-9-9-4 20-7z"/></svg>
+            Submit Booking Request
+          </button>
+        </div>
+        <div class="booking-success" id="bookingSuccess">
+          <div class="booking-success-icon">🎉</div>
+          <h3>Request Received!</h3>
+          <p>Thank you! Your booking request has been submitted.<br/>Our team will confirm your reservation shortly.</p>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer class="footer">
+  <div class="footer-inner">
+    <div class="nav-logo">
+<svg class="logo-mark" viewBox="40 10 200 180" xmlns="http://www.w3.org/2000/svg" style="width:48px;height:48px;opacity:0.92">
+      <defs>
+        <linearGradient id="nsky" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#f9c97a"/><stop offset="45%" stop-color="#f4a45a"/><stop offset="100%" stop-color="#e8855a"/></linearGradient>
+        <linearGradient id="nsun" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#fde68a"/><stop offset="100%" stop-color="#f59e0b"/></linearGradient>
+        <linearGradient id="nh1" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#5a7a4a"/><stop offset="100%" stop-color="#3d5c30"/></linearGradient>
+        <linearGradient id="nh2" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#4a6840"/><stop offset="100%" stop-color="#2e4a22"/></linearGradient>
+        <linearGradient id="nh3" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#3a5430"/><stop offset="100%" stop-color="#243820"/></linearGradient>
+        <linearGradient id="nrd" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#c4a882"/><stop offset="100%" stop-color="#8b6e4a"/></linearGradient>
+        <linearGradient id="ngr" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#7a9660"/><stop offset="100%" stop-color="#4a6840"/></linearGradient>
+        <radialGradient id="ngl" cx="50%" cy="50%" r="50%"><stop offset="0%" stop-color="#fff8dc" stop-opacity="0.9"/><stop offset="40%" stop-color="#fde68a" stop-opacity="0.6"/><stop offset="100%" stop-color="#f59e0b" stop-opacity="0"/></radialGradient>
+        <clipPath id="nclip"><rect x="40" y="10" width="200" height="180" rx="6"/></clipPath>
+        <path id="nta" d="M 104 78 A 36 36 0 0 1 176 78" fill="none"/>
+        <path id="nba" d="M 106 82 A 36 36 0 0 0 174 82" fill="none"/>
+      </defs>
+      <g clip-path="url(#nclip)">
+        <rect x="40" y="10" width="200" height="180" fill="url(#nsky)"/>
+        <circle cx="140" cy="78" r="55" fill="url(#ngl)"/>
+        <circle cx="140" cy="78" r="22" fill="url(#nsun)"/>
+        <circle cx="140" cy="78" r="17" fill="#fde68a"/>
+        <g stroke="#fde68a" stroke-width="1.5" stroke-linecap="round" opacity="0.7">
+          <line x1="140" y1="48" x2="140" y2="42"/><line x1="163" y1="55" x2="167" y2="51"/>
+          <line x1="170" y1="78" x2="176" y2="78"/><line x1="163" y1="101" x2="167" y2="105"/>
+          <line x1="117" y1="55" x2="113" y2="51"/><line x1="110" y1="78" x2="104" y2="78"/>
+          <line x1="117" y1="101" x2="113" y2="105"/>
+        </g>
+        <circle cx="140" cy="78" r="33" fill="none" stroke="rgba(255,255,255,0.15)" stroke-width="0.5"/>
+        <text font-family="Georgia,serif" font-size="7.5" font-weight="700" fill="#3d2e22" letter-spacing="2.2"><textPath href="#nta" startOffset="6%">PARICHAY · LODGE</textPath></text>
+        <text font-family="Georgia,serif" font-size="6" fill="#3d2e22" letter-spacing="1.5" opacity="0.85"><textPath href="#nba" startOffset="5%">HASSAN  ·  KARNATAKA</textPath></text>
+        <path d="M40 120 Q70 88 100 102 Q120 92 140 98 Q160 88 185 96 Q205 88 240 108 L240 145 L40 145 Z" fill="#7aab60" opacity="0.5"/>
+        <path d="M40 135 Q65 105 90 118 Q110 108 135 116 Q158 106 178 114 Q200 105 240 122 L240 155 L40 155 Z" fill="url(#nh1)"/>
+        <path d="M40 148 Q55 128 75 138 Q95 126 118 136 Q138 124 158 134 Q178 122 205 132 Q220 124 240 136 L240 165 L40 165 Z" fill="url(#nh2)"/>
+        <path d="M40 162 Q60 148 80 156 Q100 144 125 154 Q148 142 168 152 Q190 140 215 150 Q228 144 240 150 L240 190 L40 190 Z" fill="url(#nh3)"/>
+        <rect x="40" y="170" width="200" height="20" fill="url(#ngr)"/>
+        <path d="M105 190 L131 110 L149 110 L175 190 Z" fill="url(#nrd)"/>
+        <path d="M118 190 L134 118 L146 118 L162 190 Z" fill="#d4b892" opacity="0.4"/>
+        <line x1="140" y1="185" x2="140" y2="170" stroke="white" stroke-width="2" stroke-linecap="round" opacity="0.8"/>
+        <line x1="140" y1="162" x2="140" y2="148" stroke="white" stroke-width="1.5" stroke-linecap="round" opacity="0.6"/>
+        <rect x="74" y="152" width="3.5" height="20" rx="1" fill="#3d2e22"/>
+        <ellipse cx="76" cy="152" rx="11" ry="8" fill="#2e5028"/><ellipse cx="76" cy="145" rx="9" ry="7" fill="#3a6432"/><ellipse cx="76" cy="138" rx="7" ry="6" fill="#4a7a3e"/>
+        <rect x="60" y="158" width="3" height="16" rx="1" fill="#3d2e22"/>
+        <ellipse cx="62" cy="158" rx="9" ry="7" fill="#2e5028"/><ellipse cx="62" cy="152" rx="7" ry="6" fill="#3a6432"/><ellipse cx="62" cy="146" rx="5" ry="5" fill="#4a7a3e"/>
+        <rect x="202" y="148" width="3.5" height="22" rx="1" fill="#3d2e22"/>
+        <ellipse cx="204" cy="148" rx="12" ry="9" fill="#2e5028"/><ellipse cx="204" cy="140" rx="10" ry="8" fill="#3a6432"/><ellipse cx="204" cy="133" rx="7" ry="6" fill="#4a7a3e"/>
+        <rect x="216" y="155" width="3" height="18" rx="1" fill="#3d2e22"/>
+        <ellipse cx="218" cy="155" rx="9" ry="7" fill="#2e5028"/><ellipse cx="218" cy="148" rx="7" ry="6" fill="#3a6432"/><ellipse cx="218" cy="143" rx="5" ry="5" fill="#4a7a3e"/>
+        <path d="M80 60 Q83 57 86 60" fill="none" stroke="#3d2e22" stroke-width="1.2" stroke-linecap="round"/>
+        <path d="M90 52 Q93 49 96 52" fill="none" stroke="#3d2e22" stroke-width="1.2" stroke-linecap="round"/>
+        <path d="M175 48 Q178 45 181 48" fill="none" stroke="#3d2e22" stroke-width="1.2" stroke-linecap="round"/>
+        <rect x="133" y="106" width="14" height="9" fill="#3d2e22" opacity="0.5"/>
+        <path d="M131 106 L140 100 L149 106 Z" fill="#2e1f14" opacity="0.6"/>
+      </g>
+      <rect x="40" y="10" width="200" height="180" rx="6" fill="none" stroke="#c17d52" stroke-width="2"/>
+    </svg>
+      <div class="logo-name" style="color:var(--sand);text-shadow:none">Parichay Lodge<span style="color:rgba(245,239,230,0.45);text-shadow:none">Hassan · Karnataka</span></div>
+    </div>
+    <div class="footer-links">
+      <a href="#rooms">Rooms</a>
+      <a href="#amenities">Amenities</a>
+      <a href="#gallery">Gallery</a>
+      <a href="#contact">Contact</a>
+      <a href="pages/staff-login.html">Staff Login</a>
+      <a href="pages/admin-login.html">Admin</a>
+    </div>
+    <div class="footer-copy">© 2026 Parichay Lodge · Hassan, Karnataka</div>
+  </div>
+</footer>
+
+<!-- LIGHTBOX -->
+<div class="lightbox" id="lightbox">
+  <button class="lb-close" onclick="closeLb()">✕</button>
+  <button class="lb-nav lb-prev" onclick="lbNav(-1)">‹</button>
+  <img class="lb-img" id="lbImg" src="" alt=""/>
+  <button class="lb-nav lb-next" onclick="lbNav(1)">›</button>
+</div>
+
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js";
+  import { getFirestore, collection, getDocs, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js";
+  import { FIREBASE_CONFIG, COLLECTIONS } from "./js/firebase-config.js";
+
+  let galleryImgs = [], lbIdx = 0;
+
+  async function init() {
+    try {
+      const app = initializeApp(FIREBASE_CONFIG);
+      const db = getFirestore(app);
+      await Promise.all([loadSettings(db), loadRooms(db), loadGallery(db)]);
+    } catch(e) { loadDefaultRooms(); loadDefaultGallery(); }
+  }
+
+  async function loadSettings(db) {
+    try {
+      const snap = await getDoc(doc(db, COLLECTIONS.SETTINGS, "main"));
+      if (!snap.exists()) return;
+      const d = snap.data();
+      if (d.phone) { document.getElementById("phoneNum").textContent = d.phone; document.getElementById("ciPhone").href = "tel:"+d.phone; }
+      if (d.phone2) { const p2 = document.getElementById("phoneNum2"); p2.textContent = d.phone2; p2.style.display = "block"; }
+      if (d.email) { document.getElementById("emailAddr").textContent = d.email; document.getElementById("ciEmail").href = "mailto:"+d.email; }
+      if (d.address) document.getElementById("addrText").textContent = d.address;
+      if (d.checkin||d.checkout) document.getElementById("timingsText").textContent = `Check-in: ${d.checkin||"12:00 PM"} · Check-out: ${d.checkout||"11:00 AM"}`;
+      const images = d.heroImages && d.heroImages.length ? d.heroImages : (d.heroImageUrl ? [d.heroImageUrl] : null);
+      if (images) initSlideshow(images);
+      if (d.storyImages && d.storyImages.length) renderStoryImages(d.storyImages);
+      if (d.bannerImageUrl) {
+        const bannerEl = document.querySelector('.banner-img');
+        if (bannerEl) bannerEl.style.backgroundImage = `url('${d.bannerImageUrl}')`;
+      }
+    } catch(e) {}
+  }
+
+  async function loadRooms(db) {
+    const snap = await getDocs(collection(db, COLLECTIONS.ROOMS));
+    if (snap.empty) { loadDefaultRooms(); return; }
+    const rooms = []; snap.forEach(d => rooms.push({id:d.id,...d.data()}));
+    document.getElementById("statRooms").textContent = rooms.length + "+";
+    renderRooms(rooms);
+  }
+
+  function renderRooms(rooms) {
+    document.getElementById("roomsGrid").innerHTML = rooms.map(r => `
+      <div class="room-card visible">
+        <div class="room-img">
+          ${r.imageUrl ? `<img src="${r.imageUrl}" alt="${r.name}" loading="lazy" onerror="this.style.display='none';this.parentElement.style.background='linear-gradient(135deg,#4a6840,#2e4a22)'" crossorigin="anonymous"/>` : `<div class="room-img-ph">🛏️</div>`}
+          <div class="room-badge">${r.type||"Standard"}</div>
+        </div>
+        <div class="room-body">
+          <h3>${r.name}</h3>
+          <p>${r.description||"A comfortable, well-appointed room for a restful stay."}</p>
+          <div class="room-tags">
+            ${r.capacity?`<span class="room-tag">👤 ${r.capacity} Guest${r.capacity>1?"s":""}</span>`:""}
+            ${r.bedType?`<span class="room-tag">🛏️ ${r.bedType}</span>`:""}
+            ${r.acType?`<span class="room-tag">${r.acType}</span>`:""}
+          </div>
+          <div class="room-foot">
+            <div class="room-price">${r.price?`₹${r.price}<small>/night</small>`:"Contact for price"}</div>
+            <a href="#contact" class="btn-book">Book Now</a>
+          </div>
+        </div>
+      </div>`).join("");
+  }
+
+  function loadDefaultRooms() {
+    renderRooms([
+      {name:"Classic Room",type:"Standard",description:"Cozy and comfortable with all essential amenities for a peaceful overnight stay.",capacity:2,bedType:"Double Bed",price:"999"},
+      {name:"Deluxe Room",type:"Deluxe",description:"Spacious room with premium furnishings, air conditioning, and enhanced bathroom.",capacity:2,bedType:"King Bed",price:"1499"},
+      {name:"Family Suite",type:"Suite",description:"Ideal for families — extra beds, a sitting area, and thoughtful touches throughout.",capacity:4,bedType:"2 Beds",price:"2200"},
+    ]);
+  }
+
+  async function loadGallery(db) {
+    const snap = await getDocs(collection(db, COLLECTIONS.GALLERY));
+    if (snap.empty) { loadDefaultGallery(); return; }
+    const imgs = []; snap.forEach(d => imgs.push({id:d.id,...d.data()}));
+    galleryImgs = imgs.map(i => i.imageUrl);
+    renderGallery(imgs);
+  }
+
+  function renderGallery(imgs) {
+    document.getElementById("galleryGrid").innerHTML = imgs.slice(0,5).map((img,i) => `
+      <div class="g-item visible" onclick="openLb(${i})">
+        <img src="${img.imageUrl}" alt="${img.caption||"Lodge"}" loading="lazy"/>
+        <div class="g-overlay"><div class="g-caption">${img.caption||""}</div></div>
+      </div>`).join("");
+  }
+
+  function loadDefaultGallery() {
+    const def = [
+      {imageUrl:"https://images.unsplash.com/photo-1631049307264-da0ec9d70304?w=900&q=80",caption:"Deluxe Room"},
+      {imageUrl:"https://images.unsplash.com/photo-1564013799919-ab600027ffc6?w=600&q=80",caption:"Exterior"},
+      {imageUrl:"https://images.unsplash.com/photo-1560347876-aeef00ee58a1?w=600&q=80",caption:"Reception"},
+      {imageUrl:"https://images.unsplash.com/photo-1582719508461-905c673771fd?w=700&q=80",caption:"Standard Room"},
+      {imageUrl:"https://images.unsplash.com/photo-1444201983204-c43cbd584d93?w=700&q=80",caption:"View"},
+    ];
+    galleryImgs = def.map(d => d.imageUrl);
+    renderGallery(def);
+  }
+
+  window.openLb = (i) => { lbIdx=i; document.getElementById("lbImg").src=galleryImgs[i]; document.getElementById("lightbox").classList.add("open"); };
+  window.closeLb = () => document.getElementById("lightbox").classList.remove("open");
+  window.lbNav = (d) => { lbIdx=(lbIdx+d+galleryImgs.length)%galleryImgs.length; document.getElementById("lbImg").src=galleryImgs[lbIdx]; };
+
+  function renderStoryImages(urls) {
+    const el = document.getElementById("storyImagesGrid");
+    if (!el || !urls.length) return;
+    const main = urls[0];
+    const float = urls[1] || null;
+    el.innerHTML = `
+      <div class="intro-img-main">
+        <img src="${main}" alt="Our Story" loading="lazy" onerror="this.style.display='none';this.parentElement.style.background='linear-gradient(135deg,#4a6840,#2e4a22)'" crossorigin="anonymous"/>
+      </div>
+      ${float ? `<div class="intro-img-float"><img src="${float}" alt="Our Story" loading="lazy" onerror="this.style.display='none';this.parentElement.style.background='linear-gradient(135deg,#4a6840,#2e4a22)'" crossorigin="anonymous"/></div>` : ''}
+      <div class="intro-pill">✓ Verified Property</div>`;
+  }
+
+  function initSlideshow(images) {
+    const container = document.getElementById("heroSlides");
+    const dotsEl    = document.getElementById("heroDots");
+    if (!container || !images.length) return;
+    container.innerHTML = images.map((url, i) =>
+      `<div class="hero-slide${i===0?' active':''}" style="background-image:url('${url}')"></div>`
+    ).join("");
+    if (images.length > 1) {
+      dotsEl.innerHTML = images.map((_, i) =>
+        `<button class="hero-dot${i===0?' active':''}" onclick="goSlide(${i})"></button>`
+      ).join("");
+    }
+    if (images.length <= 1) return;
+    let current = 0;
+    const slides = container.querySelectorAll(".hero-slide");
+    const dots   = dotsEl.querySelectorAll(".hero-dot");
+    window.goSlide = function(idx) {
+      slides[current].classList.remove("active"); dots[current].classList.remove("active");
+      current = idx;
+      slides[current].classList.add("active"); dots[current].classList.add("active");
+    };
+    setInterval(() => window.goSlide((current + 1) % images.length), 5000);
+  }
+
+  window.submitRoomBooking = async function submitRoomBooking() {
+    const name      = document.getElementById("rbName").value.trim();
+    const phone     = document.getElementById("rbPhone").value.trim();
+    const checkin   = document.getElementById("rbCheckin").value;
+    const checkout  = document.getElementById("rbCheckout").value;
+    const occupancy = document.getElementById("rbOccupancy").value;
+    const rooms     = document.getElementById("rbRooms").value;
+    const note      = document.getElementById("rbNote").value.trim();
+
+    if (!name || !phone) { alert("Please enter your full name and phone number."); return; }
+    if (!occupancy || !rooms) { alert("Please select number of occupants and rooms."); return; }
+
+    const btn = document.getElementById("rbSubmit");
+    btn.disabled = true;
+    btn.innerHTML = "⏳ Submitting...";
+
+    try {
+      const { getFirestore, collection, addDoc, serverTimestamp } = await import("https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js");
+      const { getApp } = await import("https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js");
+      const db = getFirestore(getApp());
+
+      await addDoc(collection(db, "bookings"), {
+        name, phone, checkin, checkout, occupancy, rooms, note,
+        status: "pending",
+        createdAt: serverTimestamp()
+      });
+
+      document.getElementById("bookingFormGrid").style.display = "none";
+      document.getElementById("bookingSuccess").style.display  = "block";
+
+    } catch(e) {
+      console.error(e);
+      btn.disabled = false;
+      btn.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="18" height="18"><path d="M22 2L11 13M22 2L15 22l-4-9-9-4 20-7z"/></svg> Submit Booking Request`;
+      alert("Something went wrong. Please try WhatsApp instead.\n\n" + e.message);
+    }
+  }
+
+  init();
+</script>
+
+<script>
+  // Nav scroll
+  window.addEventListener("scroll", () => {
+    document.getElementById("nav").classList.toggle("scrolled", window.scrollY > 60);
+  });
+  // Mobile menu
+  document.getElementById("burger").addEventListener("click", () => {
+    document.getElementById("mobMenu").classList.add("open");
+  });
+  function closeMob() { document.getElementById("mobMenu").classList.remove("open"); }
+
+  // Scroll reveal
+  const obs = new IntersectionObserver(entries => {
+    entries.forEach(e => { if(e.isIntersecting) { e.target.classList.add("visible"); obs.unobserve(e.target); } });
+  }, {threshold:0.1});
+  document.querySelectorAll(".reveal,.room-card,.amen-card,.nearby-card,.g-item").forEach(el => obs.observe(el));
+</script>
+</body>
+</html>

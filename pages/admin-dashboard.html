@@ -1,0 +1,977 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Admin Dashboard — Parichay Lodge</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="../css/portal.css"/>
+</head>
+<body class="dashboard-page">
+
+<!-- SIDEBAR -->
+<aside class="sidebar" id="sidebar">
+  <div class="sb-logo">
+    <div class="sb-logo-icon">🛡️</div>
+    <div class="sb-logo-text"><strong>Parichay Lodge</strong><span>Admin Portal</span></div>
+  </div>
+
+  <div class="sb-section">
+    <div class="sb-section-label">Overview</div>
+    <nav class="sb-nav">
+      <button class="sb-link active" onclick="showPage('dashboard')"><span class="sb-icon">🏠</span> Dashboard</button>
+    </nav>
+  </div>
+
+  <div class="sb-section">
+    <div class="sb-section-label">Content</div>
+    <nav class="sb-nav">
+      <button class="sb-link" onclick="showPage('rooms')"><span class="sb-icon">🛏️</span> Rooms Manager</button>
+      <button class="sb-link" onclick="showPage('gallery')"><span class="sb-icon">🖼️</span> Gallery Manager</button>
+      <button class="sb-link" onclick="showPage('ourstory')"><span class="sb-icon">📖</span> Our Story</button>
+      <button class="sb-link" onclick="showPage('settings')"><span class="sb-icon">⚙️</span> Site Settings</button>
+    </nav>
+  </div>
+
+  <div class="sb-section">
+    <div class="sb-section-label">Guest Data</div>
+    <nav class="sb-nav">
+      <button class="sb-link" onclick="showPage('guests')"><span class="sb-icon">👥</span> All Guests</button>
+      <button class="sb-link" onclick="showPage('reports')"><span class="sb-icon">📊</span> Reports</button>
+    </nav>
+  </div>
+
+  <div class="sb-section">
+    <div class="sb-section-label">Administration</div>
+    <nav class="sb-nav">
+      <button class="sb-link" onclick="showPage('staff')"><span class="sb-icon">👤</span> Staff Accounts</button>
+    </nav>
+  </div>
+
+  <div class="sb-foot">
+    <div class="sb-user">
+      <div class="sb-avatar" id="userAvatar" style="background:var(--earth)">A</div>
+      <div class="sb-user-info"><strong id="userName">Admin</strong><span id="userEmail">admin@lodge.com</span></div>
+    </div>
+    <button class="sb-logout" onclick="doLogout()">⬅ Sign Out</button>
+  </div>
+</aside>
+
+<!-- MAIN -->
+<div class="main-content">
+
+  <!-- TOPBAR -->
+  <div class="topbar">
+    <div class="topbar-left">
+      <button class="mob-sb-toggle" onclick="document.getElementById('sidebar').classList.toggle('open')">☰</button>
+      <div>
+        <div class="topbar-title" id="pageTitle">Admin Dashboard</div>
+        <div class="topbar-subtitle" id="pageSubtitle">Full control of Parichay Lodge</div>
+      </div>
+    </div>
+    <div class="topbar-right">
+      <span style="font-size:13px;color:var(--text3)" id="todayDate"></span>
+      <a href="staff-dashboard.html" class="btn btn-outline btn-sm">Staff View</a>
+    </div>
+  </div>
+
+  <!-- ═══ DASHBOARD ═══ -->
+  <div class="page-section active" id="page-dashboard">
+    <div class="stat-row">
+      <div class="stat-card"><div class="stat-icon">👥</div><div class="stat-label">Total Guests</div><div class="stat-val" id="aStatGuests">–</div></div>
+      <div class="stat-card"><div class="stat-icon">✅</div><div class="stat-label">Currently Checked In</div><div class="stat-val" id="aStatCheckedIn">–</div></div>
+      <div class="stat-card"><div class="stat-icon">🛏️</div><div class="stat-label">Rooms Configured</div><div class="stat-val" id="aStatRooms">–</div></div>
+      <div class="stat-card"><div class="stat-icon">🖼️</div><div class="stat-label">Gallery Images</div><div class="stat-val" id="aStatGallery">–</div></div>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:24px">
+      <div class="card">
+        <div class="card-head"><div class="card-title">Quick Actions</div></div>
+        <div style="display:flex;flex-direction:column;gap:10px;padding-top:4px">
+          <button class="btn btn-primary" onclick="showPage('rooms')">🛏️ Manage Rooms</button>
+          <button class="btn btn-secondary" onclick="showPage('gallery')">🖼️ Update Gallery</button>
+          <button class="btn btn-outline" onclick="showPage('settings')">⚙️ Site Settings</button>
+          <button class="btn btn-outline" onclick="showPage('guests')">👥 View All Guests</button>
+          <button class="btn btn-outline" onclick="showPage('staff')">👤 Staff Accounts</button>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-head"><div class="card-title">Recent Activity</div></div>
+        <div id="recentActivity"><div class="empty-state"><div class="es-icon">⏳</div><p>Loading...</p></div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ ROOMS MANAGER ═══ -->
+  <div class="page-section" id="page-rooms">
+    <div class="card">
+      <div class="card-head">
+        <div class="card-title">Rooms Manager</div>
+        <button class="btn btn-primary" onclick="openRoomModal()">+ Add Room</button>
+      </div>
+      <div id="roomsGrid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:20px;padding-top:4px">
+        <div class="empty-state"><div class="es-icon">⏳</div><p>Loading...</p></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ GALLERY MANAGER ═══ -->
+  <div class="page-section" id="page-gallery">
+    <div class="card">
+      <div class="card-head">
+        <div class="card-title">Gallery Manager</div>
+        <button class="btn btn-primary" onclick="document.getElementById('galleryModal').classList.add('open')">+ Add Photos</button>
+      </div>
+      <p style="font-size:13px;color:var(--text3);margin-bottom:16px">Images are uploaded to ImgBB and linked to Firebase. Recommended: 1200×800px.</p>
+      <div class="img-grid" id="galleryGrid">
+        <div class="empty-state"><div class="es-icon">⏳</div><p>Loading...</p></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ SITE SETTINGS ═══ -->
+  <div class="page-section" id="page-settings">
+    <div class="card">
+      <div class="card-head"><div class="card-title">Site Settings</div></div>
+      <div class="form-grid form-grid-2">
+        <div class="form-group" style="grid-column:1/-1">
+          <label>Lodge Name</label>
+          <input type="text" id="sName" value="Parichay Lodge"/>
+        </div>
+        <div class="form-group">
+          <label>Primary Phone</label>
+          <input type="tel" id="sPhone" placeholder="+91 98XXXXXXXX"/>
+        </div>
+        <div class="form-group">
+          <label>Secondary Phone</label>
+          <input type="tel" id="sPhone2" placeholder="+91 80XXXXXXXX"/>
+        </div>
+        <div class="form-group">
+          <label>Email</label>
+          <input type="email" id="sEmail" placeholder="info@parichaylodge.com"/>
+        </div>
+        <div class="form-group">
+          <label>Total Guests Served (display)</label>
+          <input type="number" id="sGuests" placeholder="500"/>
+        </div>
+        <div class="form-group" style="grid-column:1/-1">
+          <label>Address</label>
+          <textarea id="sAddress" placeholder="Full address, Hassan, Karnataka – 573201"></textarea>
+        </div>
+        <div class="form-group" style="grid-column:1/-1">
+          <label>About / Description</label>
+          <textarea id="sAbout" placeholder="About Parichay Lodge..."></textarea>
+        </div>
+        <div class="form-group">
+          <label>Check-In Time</label>
+          <input type="text" id="sCheckin" value="12:00 PM"/>
+        </div>
+        <div class="form-group">
+          <label>Check-Out Time</label>
+          <input type="text" id="sCheckout" value="11:00 AM"/>
+        </div>
+      </div>
+      <div style="margin-top:20px;padding-top:16px;border-top:1px solid var(--border)">
+        <button class="btn btn-primary" onclick="saveSettings()">💾 Save Settings</button>
+      </div>
+    </div>
+
+    <div class="card" style="margin-top:20px">
+      <div class="card-head"><div class="card-title">Hero Banner Images</div></div>
+      <p style="font-size:13px;color:var(--text3);margin-bottom:16px">Upload multiple hero images for the homepage slideshow (recommended 1920×1080px). Images auto-scroll every 5 seconds.</p>
+      <div class="upload-zone" onclick="document.getElementById('heroFile').click()">
+        <input type="file" id="heroFile" accept="image/*" multiple style="display:none" onchange="uploadHero(this)"/>
+        <div class="uz-icon">🏔️</div>
+        <p>Click to upload hero images</p>
+        <span>Select one or multiple JPG/PNG files</span>
+      </div>
+      <div id="heroStatus" style="margin-top:8px;font-size:13px;display:none"></div>
+      <div id="heroPreview" style="margin-top:12px;display:flex;flex-wrap:wrap;gap:10px"></div>
+      <div class="card" style="margin-top:20px">
+        <div class="card-head"><div class="card-title">"Plan Your Visit" Banner Image</div></div>
+        <p style="font-size:13px;color:var(--text3);margin-bottom:16px">Upload the background image for the "Plan Your Visit" full-width banner section. Recommended size: <strong>1600×520px</strong>.</p>
+        <div class="upload-zone" onclick="document.getElementById('bannerFile').click()">
+          <input type="file" id="bannerFile" accept="image/*" style="display:none" onchange="uploadBanner(this)"/>
+          <div class="uz-icon">🏞️</div>
+          <p>Click to upload banner image</p>
+          <span>Wide landscape image recommended</span>
+        </div>
+        <div id="bannerStatus" style="margin-top:8px;font-size:13px;display:none"></div>
+        <div id="bannerPreview" style="margin-top:12px"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ OUR STORY ═══ -->
+  <div class="page-section" id="page-ourstory">
+    <div class="card">
+      <div class="card-head"><div class="card-title">Our Story — Images</div></div>
+      <p style="font-size:13px;color:var(--text3);margin-bottom:16px">Upload images for the "Our Story" section on the homepage. Recommended size: 800×600px.</p>
+      <div class="upload-zone" onclick="document.getElementById('storyFile').click()">
+        <input type="file" id="storyFile" accept="image/*" multiple style="display:none" onchange="uploadStory(this)"/>
+        <div class="uz-icon">📖</div>
+        <p>Click to upload Our Story images</p>
+        <span>Select one or multiple JPG/PNG files</span>
+      </div>
+      <div id="storyStatus" style="margin-top:8px;font-size:13px;display:none"></div>
+      <div id="storyPreview" style="margin-top:16px;display:flex;flex-wrap:wrap;gap:12px"></div>
+    </div>
+  </div>
+
+  <!-- ═══ ALL GUESTS ═══ -->
+  <div class="page-section" id="page-guests">
+    <div class="filter-bar">
+      <div class="search-wrap">
+        <svg class="search-icon" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="9" cy="9" r="6"/><path d="m15 15-3-3"/></svg>
+        <input type="text" id="gSearch" placeholder="Search name, phone, room..." oninput="filterGuests()"/>
+      </div>
+      <select class="btn btn-outline btn-sm" id="gStatusFilter" onchange="filterGuests()">
+        <option value="">All Status</option>
+        <option value="checked-in">Checked In</option>
+        <option value="checked-out">Checked Out</option>
+      </select>
+      <button class="btn btn-outline btn-sm" onclick="exportCSV()">⬇ Export CSV</button>
+      <button class="btn btn-danger btn-sm" onclick="if(confirm('Delete ALL guest records? This cannot be undone.')) bulkDelete()">🗑 Clear All</button>
+    </div>
+    <div class="card">
+      <div class="card-head">
+        <div class="card-title">All Guest Records <span id="gCount" style="font-size:13px;font-weight:400;color:var(--text3)"></span></div>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>#</th><th>Guest</th><th>Phone</th><th>Room</th><th class="col-p2">Room Type</th>
+              <th class="col-p3">Adults</th><th class="col-p4">Children</th><th class="col-p3">Check-In</th><th class="col-p2">Check-Out</th><th>Amount</th><th class="col-p2">Pay Status</th>
+              <th>Status</th><th class="col-p4">Added By</th><th class="col-p4">Proof</th><th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="guestsTbody">
+            <tr><td colspan="13" style="text-align:center;padding:32px;color:var(--text3)">Loading...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ REPORTS ═══ -->
+  <div class="page-section" id="page-reports">
+    <div class="stat-row">
+      <div class="stat-card"><div class="stat-icon">📅</div><div class="stat-label">This Month</div><div class="stat-val" id="rMonth">–</div></div>
+      <div class="stat-card"><div class="stat-icon">📆</div><div class="stat-label">This Week</div><div class="stat-val" id="rWeek">–</div></div>
+      <div class="stat-card"><div class="stat-icon">🏆</div><div class="stat-label">Most Popular Room</div><div class="stat-val" id="rTopRoom" style="font-size:18px">–</div></div>
+      <div class="stat-card"><div class="stat-icon">🎯</div><div class="stat-label">Occupancy Rate</div><div class="stat-val" id="rOccupancy">–</div></div>
+    </div>
+    <div class="card">
+      <div class="card-head"><div class="card-title">Monthly Breakdown</div></div>
+      <div id="monthlyBreakdown"><div class="empty-state"><div class="es-icon">📊</div><h3>No data yet</h3><p>Guest records will appear here once check-ins are recorded.</p></div></div>
+    </div>
+  </div>
+
+  <!-- ═══ STAFF ACCOUNTS ═══ -->
+  <div class="page-section" id="page-staff">
+    <div class="card">
+      <div class="card-head"><div class="card-title">Staff Accounts</div></div>
+      <div class="empty-state">
+        <div class="es-icon">👤</div>
+        <h3>Manage Staff via Firebase Console</h3>
+        <p>Create and manage staff users directly in Firebase Authentication, then assign roles in Firestore.</p>
+      </div>
+      <div style="margin-top:24px;display:flex;justify-content:center">
+        <a href="https://console.firebase.google.com" target="_blank" class="btn btn-primary">Open Firebase Console ↗</a>
+      </div>
+    </div>
+
+    <div class="card" style="margin-top:20px">
+      <div class="card-head"><div class="card-title">Setup Guide</div></div>
+      <div style="display:flex;flex-direction:column;gap:14px;padding-top:4px">
+        <div style="display:flex;gap:14px;align-items:flex-start;padding:14px;background:var(--sand);border-radius:var(--radius);border:1px solid var(--border)">
+          <div style="width:28px;height:28px;background:var(--clay);color:white;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:13px;flex-shrink:0">1</div>
+          <div><strong style="font-size:14px">Create user in Firebase</strong><p style="font-size:13px;color:var(--text2);margin-top:3px">Firebase Console → Authentication → Users → Add User → Enter email & password</p></div>
+        </div>
+        <div style="display:flex;gap:14px;align-items:flex-start;padding:14px;background:var(--sand);border-radius:var(--radius);border:1px solid var(--border)">
+          <div style="width:28px;height:28px;background:var(--clay);color:white;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:13px;flex-shrink:0">2</div>
+          <div><strong style="font-size:14px">Copy the UID</strong><p style="font-size:13px;color:var(--text2);margin-top:3px">After creating, click the user row and copy the User UID (long string)</p></div>
+        </div>
+        <div style="display:flex;gap:14px;align-items:flex-start;padding:14px;background:var(--sand);border-radius:var(--radius);border:1px solid var(--border)">
+          <div style="width:28px;height:28px;background:var(--clay);color:white;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:13px;flex-shrink:0">3</div>
+          <div><strong style="font-size:14px">Add to Firestore</strong><p style="font-size:13px;color:var(--text2);margin-top:3px">Firestore → users collection → Add document → ID = UID → field: <code style="background:var(--stone);padding:1px 6px;border-radius:3px">role: "staff"</code> or <code style="background:var(--stone);padding:1px 6px;border-radius:3px">role: "admin"</code></p></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div><!-- /main-content -->
+
+<!-- ROOM MODAL -->
+<div class="modal-backdrop" id="roomModal">
+  <div class="modal" style="max-width:640px">
+    <div class="modal-head">
+      <div class="modal-title" id="roomModalTitle">Add New Room</div>
+      <button class="modal-close" onclick="closeModal('roomModal')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-grid form-grid-2">
+        <div class="form-group">
+          <label>Room Number <span style="color:var(--danger)">*</span></label>
+          <input type="text" id="rNum" placeholder="e.g. 101, 201"/>
+        </div>
+        <div class="form-group">
+          <label>Display Name <span style="color:var(--danger)">*</span></label>
+          <input type="text" id="rName" placeholder="e.g. Deluxe Double Room"/>
+        </div>
+        <div class="form-group">
+          <label>Room Type</label>
+          <select id="rType">
+            <option>Single Occupancy</option>
+            <option>Double Occupancy</option>
+            <option>Deluxe</option>
+            <option>Suite</option>
+            <option>Family Room</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Price (₹/night)</label>
+          <input type="number" id="rPrice" placeholder="999"/>
+        </div>
+        <div class="form-group">
+          <label>Bed Type</label>
+          <select id="rBed">
+            <option>Single Cot</option>
+            <option>Double Cot</option>
+            <option>Two Single Cots</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>AC / Non-AC</label>
+          <select id="rCool">
+            <option>Non-AC</option>
+            <option>AC</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Toilet</label>
+          <select id="rToilet">
+            <option>Western Toilet</option>
+            <option>Indian Toilet</option>
+            <option>Both (Western & Indian)</option>
+            <option>Common Toilet</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Display Order</label>
+          <input type="number" id="rOrder" value="1"/>
+        </div>
+        <div class="form-group" style="grid-column:1/-1">
+          <label>Description</label>
+          <textarea id="rDesc" placeholder="Brief room description..."></textarea>
+        </div>
+        <div class="form-group" style="grid-column:1/-1">
+          <label>Features <small style="font-weight:400;color:var(--text3)">(comma-separated)</small></label>
+          <input type="text" id="rFeatures" placeholder="WiFi, Hot Water, Fan, TV, Geyser"/>
+        </div>
+        <div class="form-group" style="grid-column:1/-1">
+          <label>Room Photo</label>
+          <div class="upload-zone" onclick="document.getElementById('rImg').click()">
+            <input type="file" id="rImg" accept="image/*" style="display:none" onchange="uploadRoomImg(this)"/>
+            <div class="uz-icon">📷</div>
+            <p>Upload room photo via ImgBB</p>
+          </div>
+          <div id="rImgStatus" style="margin-top:6px;font-size:13px;display:none"></div>
+          <div id="rImgPreview" style="margin-top:10px"></div>
+        </div>
+      </div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn btn-outline" onclick="closeModal('roomModal')">Cancel</button>
+      <button class="btn btn-primary" onclick="saveRoom()">💾 Save Room</button>
+    </div>
+  </div>
+</div>
+
+<!-- GALLERY UPLOAD MODAL -->
+<div class="modal-backdrop" id="galleryModal">
+  <div class="modal" style="max-width:520px">
+    <div class="modal-head">
+      <div class="modal-title">Add Gallery Images</div>
+      <button class="modal-close" onclick="closeModal('galleryModal')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="upload-zone" onclick="document.getElementById('galFile').click()">
+        <input type="file" id="galFile" accept="image/*" multiple style="display:none" onchange="uploadGallery(this)"/>
+        <div class="uz-icon">🖼️</div>
+        <p>Click to select one or more images</p>
+        <span>Each will be uploaded to ImgBB</span>
+      </div>
+      <div id="galStatus" style="margin-top:10px;font-size:13px;color:var(--clay);display:none"></div>
+      <div class="form-grid form-grid-2" style="margin-top:16px">
+        <div class="form-group">
+          <label>Caption</label>
+          <input type="text" id="galCaption" placeholder="e.g. Room Interior"/>
+        </div>
+        <div class="form-group">
+          <label>Category</label>
+          <select id="galCat">
+            <option>Room</option>
+            <option>Common Area</option>
+            <option>Exterior</option>
+            <option>Bathroom</option>
+            <option>Other</option>
+          </select>
+        </div>
+      </div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn btn-outline" onclick="closeModal('galleryModal')">Cancel</button>
+      <button class="btn btn-primary" onclick="saveGallery()">💾 Save to Gallery</button>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast-container" id="toasts"></div>
+
+<script type="module">
+  import { FIREBASE_CONFIG, COLLECTIONS, IMGBB_API_KEY } from "../js/firebase-config.js";
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js";
+  import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-auth.js";
+  import { getFirestore, collection, addDoc, getDocs, doc, updateDoc, deleteDoc, setDoc, getDoc, query, orderBy, Timestamp }
+    from "https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js";
+
+  const app  = initializeApp(FIREBASE_CONFIG);
+  const auth = getAuth(app);
+  const db   = getFirestore(app);
+
+  let allGuests=[], allRooms=[], allGallery=[];
+  let editRoomId=null, pendingGalUrls=[], rImgUrl="";
+
+  const today = new Date();
+  const todayStr = today.toISOString().split("T")[0];
+  document.getElementById("todayDate").textContent =
+    today.toLocaleDateString("en-IN",{weekday:"long",day:"numeric",month:"long",year:"numeric"});
+
+  // ── Auth guard ──
+  onAuthStateChanged(auth, async user => {
+    if(!user){window.location.href="admin-login.html";return;}
+    try{
+      const ud=await getDoc(doc(db,COLLECTIONS.USERS,user.uid));
+      if(!ud.exists()||ud.data().role!=="admin"){await signOut(auth);window.location.href="admin-login.html";return;}
+    } catch(e){}
+    document.getElementById("userEmail").textContent=user.email;
+    document.getElementById("userName").textContent=user.displayName||"Admin";
+    document.getElementById("userAvatar").textContent=user.email[0].toUpperCase();
+    await init();
+  });
+
+  async function init(){
+    await Promise.all([loadGuests(),loadRooms(),loadGallery(),loadSettings()]);
+    renderDashboard(); renderReports();
+  }
+
+  async function loadGuests(){
+    try{const s=await getDocs(query(collection(db,COLLECTIONS.GUESTS),orderBy("createdAt","desc")));allGuests=s.docs.map(d=>({id:d.id,...d.data()}));}catch(e){allGuests=[];}
+  }
+  async function loadRooms(){
+    try{const s=await getDocs(collection(db,COLLECTIONS.ROOMS));allRooms=s.docs.map(d=>({id:d.id,...d.data()}));}catch(e){allRooms=[];}
+  }
+  async function loadGallery(){
+    try{const s=await getDocs(collection(db,COLLECTIONS.GALLERY));allGallery=s.docs.map(d=>({id:d.id,...d.data()}));}catch(e){allGallery=[];}
+  }
+  async function loadSettings(){
+    try{
+      const s=await getDoc(doc(db,COLLECTIONS.SETTINGS,"main"));
+      if(!s.exists()) return;
+      const d=s.data();
+      if(d.name)    document.getElementById("sName").value=d.name;
+      if(d.phone)   document.getElementById("sPhone").value=d.phone;
+      if(d.phone2)  document.getElementById("sPhone2").value=d.phone2;
+      if(d.email)   document.getElementById("sEmail").value=d.email;
+      if(d.address) document.getElementById("sAddress").value=d.address;
+      if(d.totalGuests) document.getElementById("sGuests").value=d.totalGuests;
+      if(d.about)   document.getElementById("sAbout").value=d.about;
+      if(d.checkin) document.getElementById("sCheckin").value=d.checkin;
+      if(d.checkout)document.getElementById("sCheckout").value=d.checkout;
+    }catch(e){}
+  }
+
+  // ── Dashboard ──
+  function renderDashboard(){
+    document.getElementById("aStatGuests").textContent=allGuests.length;
+    document.getElementById("aStatCheckedIn").textContent=allGuests.filter(g=>g.status==="checked-in").length;
+    document.getElementById("aStatRooms").textContent=allRooms.length;
+    document.getElementById("aStatGallery").textContent=allGallery.length;
+    const recent=allGuests.slice(0,5);
+    const el=document.getElementById("recentActivity");
+    el.innerHTML=recent.length?`<div class="table-wrap"><table>
+      <thead><tr><th>Guest</th><th>Room</th><th class="col-p3">Check-In</th><th>Amount</th><th class="col-p2">Pay Status</th><th>Check-In Status</th></tr></thead>
+      <tbody>${recent.map(g=>`<tr>
+        <td><strong>${g.name}</strong><br><small style="color:var(--text3)">${g.phone}</small></td>
+        <td>${g.roomNumber}</td>
+        <td class="col-p3">${fmt(g.checkinDate)}</td>
+        <td>${g.amount ? '₹'+g.amount : '—'}</td>
+      <td class="col-p2"><span style='font-size:12px;padding:2px 8px;border-radius:99px;background:${g.payStatus=="Paid"?"#dcfce7":g.payStatus=="Partial"?"#fef9c3":"#fee2e2"};color:${g.payStatus=="Paid"?"#166534":g.payStatus=="Partial"?"#854d0e":"#991b1b"}'>${g.payStatus||"—"}</span></td>
+      <td>${badge(g.status)}</td>
+      </tr>`).join("")}
+      </tbody></table></div>`:
+    `<div class="empty-state"><div class="es-icon">🌿</div><h3>No activity yet</h3></div>`;
+  }
+
+  // ── Rooms ──
+  function renderRooms(){
+    const el=document.getElementById("roomsGrid");
+    if(!allRooms.length){
+      el.innerHTML=`<div class="empty-state"><div class="es-icon">🛏️</div><h3>No rooms added</h3><p>Click "+ Add Room" to configure your rooms.</p></div>`;
+      return;
+    }
+    el.innerHTML=allRooms.map(r=>`
+      <div style="background:var(--white);border:1px solid var(--border);border-radius:var(--radius2);overflow:hidden;transition:box-shadow 0.2s">
+        ${r.imageUrl?`<img src="${r.imageUrl}" style="width:100%;height:160px;object-fit:cover"/>`:
+        `<div style="width:100%;height:120px;background:var(--sand);display:flex;align-items:center;justify-content:center;font-size:3rem">🛏️</div>`}
+        <div style="padding:16px">
+          <div style="font-weight:700;font-size:15px;color:var(--earth);margin-bottom:4px">${r.roomNumber||""} ${r.name}</div>
+          <div style="font-size:12px;color:var(--text3);margin-bottom:6px">${r.type||""} · ${r.bed||""} · ${r.cooling||""} · ${r.toilet||""}</div>
+          <div style="font-size:13px;color:var(--clay);font-weight:600;margin-bottom:12px">${r.price?"₹"+r.price+"/night":"–"}</div>
+          <div style="display:flex;gap:8px">
+            <button class="btn btn-outline btn-sm" onclick="editRoom('${r.id}')">✏️ Edit</button>
+            <button class="btn btn-danger btn-sm" onclick="delRoom('${r.id}','${r.name}')">🗑 Delete</button>
+          </div>
+        </div>
+      </div>`).join("");
+  }
+
+  window.openRoomModal=function(){
+    editRoomId=null; rImgUrl="";
+    document.getElementById("roomModalTitle").textContent="Add New Room";
+    ["rNum","rName","rDesc","rFeatures"].forEach(id=>document.getElementById(id).value="");
+    document.getElementById("rPrice").value="";
+    document.getElementById("rOrder").value=allRooms.length+1;
+    document.getElementById("rImgPreview").innerHTML="";
+    document.getElementById("rImgStatus").style.display="none";
+    document.getElementById("roomModal").classList.add("open");
+  };
+
+  window.editRoom=function(id){
+    const r=allRooms.find(x=>x.id===id); if(!r) return;
+    editRoomId=id; rImgUrl=r.imageUrl||"";
+    document.getElementById("roomModalTitle").textContent="Edit Room";
+    document.getElementById("rNum").value=r.roomNumber||"";
+    document.getElementById("rName").value=r.name||"";
+    document.getElementById("rType").value=r.type||"Single Occupancy";
+    document.getElementById("rPrice").value=r.price||"";
+    document.getElementById("rBed").value=r.bed||"Single Cot";
+    document.getElementById("rCool").value=r.cooling||"Non-AC";
+    document.getElementById("rToilet").value=r.toilet||"Western Toilet";
+    document.getElementById("rOrder").value=r.order||1;
+    document.getElementById("rDesc").value=r.description||"";
+    document.getElementById("rFeatures").value=(r.features||[]).join(", ");
+    document.getElementById("rImgPreview").innerHTML=r.imageUrl?`<img src="${r.imageUrl}" style="max-width:200px;border-radius:8px;margin-top:8px"/>`:"";
+    document.getElementById("roomModal").classList.add("open");
+  };
+
+  window.uploadRoomImg=async function(input){
+    const file=input.files[0]; if(!file) return;
+    const st=document.getElementById("rImgStatus");
+    st.style.display="block"; st.textContent="⏳ Uploading..."; st.style.color="var(--clay)";
+    try{
+      const fd=new FormData(); fd.append("image",file);
+      const res=await fetch(`https://api.imgbb.com/1/upload?key=${IMGBB_API_KEY}`,{method:"POST",body:fd});
+      const data=await res.json();
+      if(data.success){
+        rImgUrl=data.data.url;
+        document.getElementById("rImgPreview").innerHTML=`<img src="${rImgUrl}" style="max-width:200px;border-radius:8px;margin-top:8px"/>`;
+        st.textContent="✓ Uploaded"; st.style.color="var(--success)";
+      } else throw new Error();
+    }catch(e){st.textContent="⚠ Upload failed"; st.style.color="var(--danger)";}
+  };
+
+  window.saveRoom=async function(){
+    const name=document.getElementById("rName").value.trim();
+    if(!name){toast("Room name is required","error"); return;}
+    const data={
+      roomNumber:document.getElementById("rNum").value.trim(),
+      name,
+      type:document.getElementById("rType").value,
+      price:document.getElementById("rPrice").value,
+      bed:document.getElementById("rBed").value,
+      cooling:document.getElementById("rCool").value,
+      toilet:document.getElementById("rToilet").value,
+      order:parseInt(document.getElementById("rOrder").value)||1,
+      description:document.getElementById("rDesc").value,
+      features:document.getElementById("rFeatures").value.split(",").map(s=>s.trim()).filter(Boolean),
+      imageUrl:rImgUrl,
+      updatedAt:Timestamp.now()
+    };
+    try{
+      if(editRoomId){await updateDoc(doc(db,COLLECTIONS.ROOMS,editRoomId),data);toast("Room updated","success");}
+      else{data.createdAt=Timestamp.now();await addDoc(collection(db,COLLECTIONS.ROOMS),data);toast("Room added","success");}
+      closeModal("roomModal"); await loadRooms(); renderRooms();
+      document.getElementById("aStatRooms").textContent=allRooms.length;
+    }catch(e){toast("Error: "+e.message,"error");}
+  };
+
+  window.delRoom=async function(id,name){
+    if(!confirm(`Delete room "${name}"?`)) return;
+    try{await deleteDoc(doc(db,COLLECTIONS.ROOMS,id));toast("Room deleted","success");await loadRooms();renderRooms();}
+    catch(e){toast("Error: "+e.message,"error");}
+  };
+
+  // ── Gallery ──
+  function renderGallery(){
+    const el=document.getElementById("galleryGrid");
+    if(!allGallery.length){
+      el.innerHTML=`<div class="empty-state"><div class="es-icon">🖼️</div><h3>No gallery images</h3><p>Add photos to showcase your lodge.</p></div>`;
+      return;
+    }
+    el.innerHTML=allGallery.map(g=>`
+      <div class="img-thumb">
+        <img src="${g.imageUrl}" alt="${g.caption||""}"/>
+        <button class="img-thumb-del" onclick="delGallery('${g.id}')">✕</button>
+      </div>`).join("");
+  }
+
+  window.uploadGallery=async function(input){
+    const files=Array.from(input.files);
+    const st=document.getElementById("galStatus");
+    st.style.display="block"; pendingGalUrls=[];
+    for(let i=0;i<files.length;i++){
+      st.textContent=`⏳ Uploading ${i+1}/${files.length}...`;
+      try{
+        const fd=new FormData(); fd.append("image",files[i]);
+        const res=await fetch(`https://api.imgbb.com/1/upload?key=${IMGBB_API_KEY}`,{method:"POST",body:fd});
+        const data=await res.json();
+        if(data.success) pendingGalUrls.push(data.data.url);
+      }catch(e){}
+    }
+    st.textContent=`✓ ${pendingGalUrls.length} image(s) ready to save`;
+    st.style.color="var(--success)";
+  };
+
+  window.saveGallery=async function(){
+    if(!pendingGalUrls.length){toast("Please upload images first","error"); return;}
+    const caption=document.getElementById("galCaption").value;
+    const cat=document.getElementById("galCat").value;
+    try{
+      for(const url of pendingGalUrls){
+        await addDoc(collection(db,COLLECTIONS.GALLERY),{imageUrl:url,caption,category:cat,order:allGallery.length+1,createdAt:Timestamp.now()});
+      }
+      toast(`${pendingGalUrls.length} image(s) added`,"success");
+      closeModal("galleryModal"); await loadGallery(); renderGallery();
+      document.getElementById("aStatGallery").textContent=allGallery.length;
+    }catch(e){toast("Error: "+e.message,"error");}
+  };
+
+  window.delGallery=async function(id){
+    if(!confirm("Remove this image from gallery?")) return;
+    try{await deleteDoc(doc(db,COLLECTIONS.GALLERY,id));toast("Image removed","success");await loadGallery();renderGallery();}
+    catch(e){toast("Error: "+e.message,"error");}
+  };
+
+  // ── Settings ──
+  window.saveSettings=async function(){
+    const data={
+      name:document.getElementById("sName").value,
+      phone:document.getElementById("sPhone").value,
+      phone2:document.getElementById("sPhone2").value,
+      email:document.getElementById("sEmail").value,
+      address:document.getElementById("sAddress").value,
+      totalGuests:parseInt(document.getElementById("sGuests").value)||0,
+      about:document.getElementById("sAbout").value,
+      checkin:document.getElementById("sCheckin").value,
+      checkout:document.getElementById("sCheckout").value,
+      updatedAt:Timestamp.now()
+    };
+    try{
+      await setDoc(doc(db,COLLECTIONS.SETTINGS,"main"),data,{merge:true});
+      toast("Settings saved!","success");
+    }catch(e){toast("Error: "+e.message,"error");}
+  };
+
+  window.uploadHero=async function(input){
+    const files=Array.from(input.files); if(!files.length) return;
+    const st=document.getElementById("heroStatus");
+    const preview=document.getElementById("heroPreview");
+    st.style.display="block"; st.style.color="var(--clay)";
+
+    // Load existing images first
+    let existingUrls=[];
+    try{
+      const snap=await getDoc(doc(db,COLLECTIONS.SETTINGS,"main"));
+      if(snap.exists()&&snap.data().heroImages) existingUrls=snap.data().heroImages;
+    }catch(e){}
+
+    const newUrls=[];
+    for(let i=0;i<files.length;i++){
+      st.textContent=`⏳ Uploading image ${i+1} of ${files.length}...`;
+      try{
+        const fd=new FormData(); fd.append("image",files[i]);
+        const res=await fetch(`https://api.imgbb.com/1/upload?key=${IMGBB_API_KEY}`,{method:"POST",body:fd});
+        const data=await res.json();
+        if(data.success) newUrls.push(data.data.url);
+      }catch(e){ st.textContent="⚠ Upload failed for image "+(i+1); st.style.color="var(--danger)"; }
+    }
+
+    const allUrls=[...existingUrls,...newUrls];
+    await setDoc(doc(db,COLLECTIONS.SETTINGS,"main"),{heroImages:allUrls,heroImageUrl:allUrls[0]},{merge:true});
+
+    // Render previews with delete buttons
+    renderHeroPreviews(allUrls);
+    st.textContent=`✓ ${newUrls.length} image(s) uploaded! Total: ${allUrls.length} slides.`;
+    st.style.color="var(--success)";
+    toast("Hero images saved!","success");
+    input.value="";
+  };
+
+  function renderHeroPreviews(urls){
+    const preview=document.getElementById("heroPreview");
+    preview.innerHTML=urls.map((url,i)=>`
+      <div style="position:relative;display:inline-block">
+        <img src="${url}" style="width:160px;height:90px;object-fit:cover;border-radius:8px;display:block"/>
+        <button onclick="deleteHeroImage(${i})" style="position:absolute;top:4px;right:4px;background:rgba(0,0,0,0.6);color:white;border:none;border-radius:50%;width:22px;height:22px;cursor:pointer;font-size:13px;line-height:1">✕</button>
+        <div style="text-align:center;font-size:11px;color:var(--text3);margin-top:4px">Slide ${i+1}</div>
+      </div>`).join("");
+  }
+
+  window.deleteHeroImage=async function(idx){
+    if(!confirm("Remove this slide?")) return;
+    try{
+      const snap=await getDoc(doc(db,COLLECTIONS.SETTINGS,"main"));
+      let urls=snap.exists()&&snap.data().heroImages?[...snap.data().heroImages]:[];
+      urls.splice(idx,1);
+      await setDoc(doc(db,COLLECTIONS.SETTINGS,"main"),{heroImages:urls,heroImageUrl:urls[0]||""},{merge:true});
+      renderHeroPreviews(urls);
+      toast("Slide removed!","success");
+    }catch(e){toast("Error removing slide","error");}
+  };
+
+  // Load existing hero images on page load
+  (async()=>{
+    try{
+      const snap=await getDoc(doc(db,COLLECTIONS.SETTINGS,"main"));
+      if(snap.exists()&&snap.data().heroImages&&snap.data().heroImages.length){
+        renderHeroPreviews(snap.data().heroImages);
+      }
+    }catch(e){}
+  })();
+
+  // ── Banner Image ──
+  window.uploadBanner = async function(input) {
+    const file = input.files[0]; if (!file) return;
+    const st = document.getElementById("bannerStatus");
+    st.style.display = "block"; st.textContent = "⏳ Uploading..."; st.style.color = "var(--clay)";
+    try {
+      const fd = new FormData(); fd.append("image", file);
+      const res = await fetch(`https://api.imgbb.com/1/upload?key=${IMGBB_API_KEY}`, {method:"POST", body:fd});
+      const data = await res.json();
+      if (data.success) {
+        await setDoc(doc(db, COLLECTIONS.SETTINGS, "main"), {bannerImageUrl: data.data.url}, {merge: true});
+        document.getElementById("bannerPreview").innerHTML = `<img src="${data.data.url}" style="max-width:100%;border-radius:8px;margin-top:8px;max-height:200px;object-fit:cover"/>`;
+        st.textContent = "✓ Banner image updated!"; st.style.color = "var(--success)";
+        toast("Banner image saved!", "success");
+      }
+    } catch(e) { st.textContent = "⚠ Upload failed"; st.style.color = "var(--danger)"; }
+    input.value = "";
+  };
+
+  // Load existing banner image
+  (async () => {
+    try {
+      const snap = await getDoc(doc(db, COLLECTIONS.SETTINGS, "main"));
+      if (snap.exists() && snap.data().bannerImageUrl) {
+        document.getElementById("bannerPreview").innerHTML = `<img src="${snap.data().bannerImageUrl}" style="max-width:100%;border-radius:8px;margin-top:8px;max-height:200px;object-fit:cover"/>`;
+      }
+    } catch(e) {}
+  })();
+
+  // ── Our Story Images ──
+  window.uploadStory = async function(input) {
+    const files = Array.from(input.files); if (!files.length) return;
+    const st = document.getElementById("storyStatus");
+    st.style.display = "block"; st.style.color = "var(--clay)";
+    let existingUrls = [];
+    try {
+      const snap = await getDoc(doc(db, COLLECTIONS.SETTINGS, "main"));
+      if (snap.exists() && snap.data().storyImages) existingUrls = snap.data().storyImages;
+    } catch(e) {}
+    const newUrls = [];
+    for (let i = 0; i < files.length; i++) {
+      st.textContent = `⏳ Uploading image ${i+1} of ${files.length}...`;
+      try {
+        const fd = new FormData(); fd.append("image", files[i]);
+        const res = await fetch(`https://api.imgbb.com/1/upload?key=${IMGBB_API_KEY}`, {method:"POST", body:fd});
+        const data = await res.json();
+        if (data.success) newUrls.push(data.data.url);
+      } catch(e) { st.textContent = "⚠ Upload failed for image " + (i+1); st.style.color = "var(--danger)"; }
+    }
+    const allUrls = [...existingUrls, ...newUrls];
+    await setDoc(doc(db, COLLECTIONS.SETTINGS, "main"), {storyImages: allUrls}, {merge: true});
+    renderStoryPreviews(allUrls);
+    st.textContent = `✓ ${newUrls.length} image(s) uploaded! Total: ${allUrls.length}.`;
+    st.style.color = "var(--success)";
+    toast("Our Story images saved!", "success");
+    input.value = "";
+  };
+
+  function renderStoryPreviews(urls) {
+    document.getElementById("storyPreview").innerHTML = urls.map((url, i) => `
+      <div style="position:relative;display:inline-block">
+        <img src="${url}" style="width:160px;height:110px;object-fit:cover;border-radius:8px;display:block"/>
+        <button onclick="deleteStoryImage(${i})" style="position:absolute;top:4px;right:4px;background:rgba(0,0,0,0.6);color:white;border:none;border-radius:50%;width:22px;height:22px;cursor:pointer;font-size:13px;line-height:1">✕</button>
+        <div style="text-align:center;font-size:11px;color:var(--text3);margin-top:4px">Image ${i+1}</div>
+      </div>`).join("");
+  }
+
+  window.deleteStoryImage = async function(idx) {
+    if (!confirm("Remove this image?")) return;
+    try {
+      const snap = await getDoc(doc(db, COLLECTIONS.SETTINGS, "main"));
+      let urls = snap.exists() && snap.data().storyImages ? [...snap.data().storyImages] : [];
+      urls.splice(idx, 1);
+      await setDoc(doc(db, COLLECTIONS.SETTINGS, "main"), {storyImages: urls}, {merge: true});
+      renderStoryPreviews(urls);
+      toast("Image removed!", "success");
+    } catch(e) { toast("Error removing image", "error"); }
+  };
+
+  // Load existing story images on page load
+  (async () => {
+    try {
+      const snap = await getDoc(doc(db, COLLECTIONS.SETTINGS, "main"));
+      if (snap.exists() && snap.data().storyImages && snap.data().storyImages.length) {
+        renderStoryPreviews(snap.data().storyImages);
+      }
+    } catch(e) {}
+  })();
+
+  // ── All Guests ──
+  window.filterGuests=function(){
+    const s=document.getElementById("gSearch").value.toLowerCase();
+    const st=document.getElementById("gStatusFilter").value;
+    let f=[...allGuests];
+    if(s)  f=f.filter(g=>(g.name+g.phone+g.roomNumber).toLowerCase().includes(s));
+    if(st) f=f.filter(g=>g.status===st);
+    document.getElementById("gCount").textContent=`(${f.length} records)`;
+    document.getElementById("guestsTbody").innerHTML=f.length?f.map((g,i)=>`<tr>
+      <td>${i+1}</td>
+      <td><strong>${g.name}</strong><br><small style="color:var(--text3)">${g.address||""}</small></td>
+      <td>${g.phone}</td>
+      <td>${g.roomNumber}</td>
+      <td class="col-p2"><small>${g.roomType||"–"}</small></td>
+      <td class="col-p3">${g.adults||g.guestCount||1}</td>
+      <td class="col-p4">${g.children||0}</td>
+      <td class="col-p3">${fmt(g.checkinDate)}</td>
+      <td class="col-p2">${fmt(g.checkoutDate)}</td>
+      <td>${g.amount ? "₹"+g.amount : "—"}</td>
+      <td class="col-p2"><span style="font-size:11px;padding:2px 8px;border-radius:99px;background:${g.payStatus==="Paid"?"#dcfce7":g.payStatus==="Partial"?"#fef9c3":"#fee2e2"};color:${g.payStatus==="Paid"?"#166534":g.payStatus==="Partial"?"#854d0e":"#991b1b"}">${g.payStatus||"—"}</span></td>
+      <td>${badge(g.status)}</td>
+      <td class="col-p4"><small style="color:var(--text3)">${g.checkedInBy||"–"}</small></td>
+      <td class="col-p4">${proofBtn(g)}</td>
+      <td><button class="btn btn-danger btn-sm" onclick="if(confirm('Delete this record?'))delGuest('${g.id}')">🗑</button></td>
+    </tr>`).join(""):
+    `<tr><td colspan="13"><div class="empty-state"><div class="es-icon">🔍</div><h3>No results</h3></div></td></tr>`;
+  };
+
+  window.delGuest=async function(id){
+    try{
+      await deleteDoc(doc(db,COLLECTIONS.GUESTS,id));
+      toast("Record deleted","success");
+      await loadGuests(); filterGuests(); renderDashboard(); renderReports();
+    }catch(e){toast("Error: "+e.message,"error");}
+  };
+
+  window.bulkDelete=async function(){
+    try{
+      for(const g of allGuests) await deleteDoc(doc(db,COLLECTIONS.GUESTS,g.id));
+      toast("All guest records deleted","success");
+      await loadGuests(); filterGuests(); renderDashboard(); renderReports();
+    }catch(e){toast("Error: "+e.message,"error");}
+  };
+
+  window.exportCSV=function(){
+    const cols=["Name","Phone","Email","Address","Room","Room Type","Adults","Children","Check-In","Check-Out","ID Type","Status","Added By"];
+    const rows=allGuests.map(g=>[g.name,g.phone,g.email||"",g.address||"",g.roomNumber,g.roomType||"",g.adults||g.guestCount||1,g.children||0,g.checkinDate,g.checkoutDate,g.idProofType||"",g.status,g.checkedInBy||""].map(v=>`"${v}"`).join(","));
+    const csv=[cols.join(","),...rows].join("\n");
+    const a=document.createElement("a");
+    a.href="data:text/csv;charset=utf-8,"+encodeURIComponent(csv);
+    a.download="parichay-all-guests.csv"; a.click();
+  };
+
+  // ── Reports ──
+  function renderReports(){
+    const now=new Date();
+    const mo=allGuests.filter(g=>{const d=new Date(g.checkinDate);return d.getMonth()===now.getMonth()&&d.getFullYear()===now.getFullYear();});
+    const wk=allGuests.filter(g=>{const d=new Date(g.checkinDate);const w=new Date(now);w.setDate(now.getDate()-7);return d>=w;});
+    document.getElementById("rMonth").textContent=mo.length;
+    document.getElementById("rWeek").textContent=wk.length;
+    const rc={}; allGuests.forEach(g=>{rc[g.roomNumber]=(rc[g.roomNumber]||0)+1;});
+    const top=Object.entries(rc).sort((a,b)=>b[1]-a[1])[0];
+    document.getElementById("rTopRoom").textContent=top?top[0]:"–";
+    const occ=allGuests.filter(g=>g.status==="checked-in").length;
+    const total=Math.max(allRooms.length,32);
+    document.getElementById("rOccupancy").textContent=total>0?Math.round((occ/total)*100)+"%":"–";
+    const months={};
+    allGuests.forEach(g=>{if(!g.checkinDate) return;const k=(g.checkinDate||"").substring(0,7);months[k]=(months[k]||0)+1;});
+    const sorted=Object.entries(months).sort((a,b)=>b[0].localeCompare(a[0])).slice(0,12);
+    document.getElementById("monthlyBreakdown").innerHTML=sorted.length?
+      `<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:12px">
+        ${sorted.map(([m,c])=>`
+          <div style="background:var(--sand);border:1px solid var(--border);border-radius:var(--radius);padding:16px;text-align:center">
+            <div style="font-size:11px;color:var(--text3);margin-bottom:4px">${new Date(m+"-01").toLocaleDateString("en-IN",{month:"short",year:"numeric"})}</div>
+            <div style="font-size:28px;font-weight:700;color:var(--earth);font-family:'Playfair Display',serif">${c}</div>
+            <div style="font-size:11px;color:var(--text3)">guest${c!==1?"s":""}</div>
+          </div>`).join("")}
+      </div>`:
+      `<div class="empty-state"><div class="es-icon">📊</div><h3>No data yet</h3></div>`;
+  }
+
+  // ── Helpers ──
+  window.showPage=function(page){
+    document.querySelectorAll(".page-section").forEach(s=>s.classList.remove("active"));
+    document.getElementById("page-"+page).classList.add("active");
+    document.querySelectorAll(".sb-link").forEach(b=>b.classList.remove("active"));
+    document.querySelectorAll(".sb-link").forEach(b=>{if(b.getAttribute("onclick")?.includes(page)) b.classList.add("active");});
+    const T={
+      dashboard:["Admin Dashboard","Full control of Parichay Lodge"],
+      rooms:    ["Rooms Manager","Configure room types and pricing"],
+      gallery:  ["Gallery Manager","Manage website photos"],
+      settings: ["Site Settings","Update contact info and content"],
+      guests:   ["All Guests","Full guest records with admin controls"],
+      reports:  ["Reports & Analytics","Occupancy and booking stats"],
+      staff:    ["Staff Accounts","Manage login accounts"]
+    };
+    if(T[page]){document.getElementById("pageTitle").textContent=T[page][0];document.getElementById("pageSubtitle").textContent=T[page][1];}
+    if(page==="rooms")   renderRooms();
+    if(page==="gallery") renderGallery();
+    if(page==="guests")  filterGuests();
+    if(page==="reports") renderReports();
+    document.getElementById("sidebar").classList.remove("open");
+  };
+
+  window.closeModal=function(id){document.getElementById(id).classList.remove("open");};
+  window.doLogout=async()=>{await signOut(auth); window.location.href="admin-login.html";};
+
+  function proofBtn(g){
+    if(!g.idProofUrl) return `<span style="color:var(--text3);font-size:12px">—</span>`;
+    return `<a href="${g.idProofUrl}" target="_blank" download class="btn btn-outline btn-sm">⬇ Proof</a>`;
+  }
+
+  function toast(msg,type="info"){
+    const t=document.createElement("div");
+    t.className=`toast toast-${type}`;
+    t.innerHTML=`<span>${msg}</span>`;
+    document.getElementById("toasts").appendChild(t);
+    setTimeout(()=>t.remove(),4000);
+  }
+
+  function fmt(d){
+    if(!d) return "–";
+    try{return new Date(d).toLocaleDateString("en-IN",{day:"2-digit",month:"short",year:"numeric"});}catch(e){return d;}
+  }
+
+  function badge(s){
+    return s==="checked-in"
+      ?`<span class="badge badge-green">Checked In</span>`
+      :`<span class="badge badge-gray">Checked Out</span>`;
+  }
+</script>
+</body>
+</html>

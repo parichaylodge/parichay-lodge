@@ -1,0 +1,1086 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Staff Dashboard — Parichay Lodge</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="../css/portal.css"/>
+  <style>
+    .room-options { display:flex; flex-wrap:wrap; gap:8px; margin-top:6px; }
+    .room-chip {
+      display:flex; align-items:center; gap:6px;
+      padding:7px 14px; border:1.5px solid var(--border);
+      border-radius:100px; cursor:pointer; font-size:12.5px;
+      font-weight:500; color:var(--text2); transition:all 0.2s;
+      user-select:none; background:var(--white);
+    }
+    .room-chip input { display:none; }
+    .room-chip:hover { border-color:var(--clay); color:var(--clay); }
+    .room-chip.selected { background:var(--clay); border-color:var(--clay); color:#fff; }
+    .form-section-title {
+      font-size:11px; font-weight:700; letter-spacing:0.14em; text-transform:uppercase;
+      color:var(--clay); padding:16px 0 6px; border-top:1px solid var(--border);
+      margin-top:4px; grid-column:1/-1;
+    }
+    .form-section-title:first-child { border-top:none; padding-top:4px; }
+    .count-row { display:grid; grid-template-columns:1fr 1fr 1fr; gap:12px; grid-column:1/-1; }
+    .floor-label {
+      font-size:11px; font-weight:700; letter-spacing:0.12em; text-transform:uppercase;
+      color:var(--earth2); padding:10px 0 6px; border-top:1px solid var(--border); margin-top:4px;
+    }
+    .rooms-by-floor { display:grid; grid-template-columns:repeat(4,1fr); gap:8px; margin-bottom:10px; }
+    @media(max-width:768px){ .rooms-by-floor { grid-template-columns:repeat(2,1fr); } }
+    .proof-actions { display:flex; gap:8px; align-items:center; flex-wrap:wrap; margin-top:8px; }
+    .proof-thumb { width:80px; height:56px; object-fit:cover; border-radius:6px; border:1px solid var(--border); cursor:pointer; }
+    input[type="datetime-local"] { padding:9px 12px; }
+    .id-other-wrap { display:none; grid-column:1/-1; }
+    .id-other-wrap.show { display:block; }
+    .room-type-display { font-size:12.5px; color:var(--clay); margin-top:6px; min-height:18px; font-weight:500; }
+    /* Booking Request Cards */
+    .booking-card {
+      background: var(--white); border-radius: 12px; padding: 18px 20px;
+      border: 1.5px solid var(--stone); display: flex; align-items: flex-start;
+      justify-content: space-between; gap: 16px; flex-wrap: wrap;
+    }
+    .booking-card.pending  { border-left: 4px solid #f59e0b; }
+    .booking-card.confirmed { border-left: 4px solid #22c55e; opacity: 0.7; }
+    .booking-card-info { flex: 1; min-width: 200px; }
+    .booking-card-name { font-weight: 700; font-size: 15px; color: var(--earth); margin-bottom: 4px; }
+    .booking-card-meta { font-size: 13px; color: var(--text2); line-height: 1.8; }
+    .booking-card-meta strong { color: var(--earth); }
+    .booking-card-status { font-size: 11px; font-weight: 700; letter-spacing: 0.08em;
+      text-transform: uppercase; padding: 3px 10px; border-radius: 99px; }
+    .booking-card-status.pending   { background: #fef3c7; color: #92400e; }
+    .booking-card-status.confirmed { background: #dcfce7; color: #166534; }
+    .booking-card-actions { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+    .btn-confirm { background: #25d366; color: white; border: none; border-radius: 8px;
+      padding: 9px 16px; font-size: 13px; font-weight: 600; cursor: pointer;
+      display: flex; align-items: center; gap: 6px; transition: opacity 0.2s; }
+    .btn-confirm:hover { opacity: 0.88; }
+    .btn-decline { background: #fee2e2; color: #dc2626; border: none; border-radius: 8px;
+      padding: 9px 14px; font-size: 13px; font-weight: 600; cursor: pointer; }
+  </style>
+</head>
+<body class="dashboard-page">
+
+<!-- SIDEBAR -->
+<aside class="sidebar" id="sidebar">
+  <div class="sb-logo">
+    <div class="sb-logo-icon">🌿</div>
+    <div class="sb-logo-text"><strong>Parichay Lodge</strong><span>Staff Portal</span></div>
+  </div>
+  <div class="sb-section">
+    <div class="sb-section-label">Guest Management</div>
+    <nav class="sb-nav">
+      <button class="sb-link active" onclick="showPage('dashboard')"><span class="sb-icon">🏠</span> Dashboard</button>
+      <button class="sb-link" onclick="showPage('checkin')"><span class="sb-icon">➕</span> New Check-In</button>
+      <button class="sb-link" onclick="showPage('guests')"><span class="sb-icon">👥</span> All Guests</button>
+      <button class="sb-link" onclick="showPage('audit')"><span class="sb-icon">📋</span> Audit Records</button>
+    </nav>
+  </div>
+  <div class="sb-section">
+    <div class="sb-section-label">Rooms</div>
+    <nav class="sb-nav">
+      <button class="sb-link" onclick="showPage('bookings')"><span class="sb-icon">📩</span> Booking Requests <span id="bookingBadge" style="display:none;background:var(--danger,#e53e3e);color:white;border-radius:99px;font-size:10px;padding:2px 7px;margin-left:6px">0</span></button>
+      <button class="sb-link" onclick="showPage('rooms')"><span class="sb-icon">🛏️</span> Room Status</button>
+    </nav>
+  </div>
+  <div class="sb-foot">
+    <div class="sb-user">
+      <div class="sb-avatar" id="userAvatar">S</div>
+      <div class="sb-user-info"><strong id="userName">Staff</strong><span id="userEmail">staff@lodge.com</span></div>
+    </div>
+    <button class="sb-logout" onclick="doLogout()">⬅ Sign Out</button>
+  </div>
+</aside>
+
+<!-- MAIN -->
+<div class="main-content">
+
+  <div class="topbar">
+    <div class="topbar-left">
+      <button class="mob-sb-toggle" onclick="document.getElementById('sidebar').classList.toggle('open')">☰</button>
+      <div>
+        <div class="topbar-title" id="pageTitle">Dashboard</div>
+        <div class="topbar-subtitle" id="pageSubtitle">Welcome back!</div>
+      </div>
+    </div>
+    <div class="topbar-right">
+      <span style="font-size:13px;color:var(--text3)" id="todayDate"></span>
+      <button class="btn btn-primary" onclick="showPage('checkin')">+ New Check-In</button>
+    </div>
+  </div>
+
+  <!-- ═══ DASHBOARD ═══ -->
+  <div class="page-section active" id="page-dashboard">
+    <div class="stat-row">
+      <div class="stat-card"><div class="stat-icon">🏨</div><div class="stat-label">Total Guests Today</div><div class="stat-val" id="statTotal">–</div></div>
+      <div class="stat-card"><div class="stat-icon">✅</div><div class="stat-label">Currently Checked In</div><div class="stat-val" id="statCheckedIn">–</div></div>
+      <div class="stat-card"><div class="stat-icon">🚪</div><div class="stat-label">Checked Out Today</div><div class="stat-val" id="statCheckedOut">–</div></div>
+      <div class="stat-card"><div class="stat-icon">📊</div><div class="stat-label">All-Time Guests</div><div class="stat-val" id="statAllTime">–</div></div>
+    </div>
+    <div class="card">
+      <div class="card-head">
+        <div class="card-title">Recent Check-Ins</div>
+        <button class="btn btn-outline btn-sm" onclick="showPage('guests')">View All</button>
+      </div>
+      <div id="recentList"><div class="empty-state"><div class="es-icon">⏳</div><p>Loading...</p></div></div>
+    </div>
+  </div>
+
+  <!-- ═══ CHECK-IN ═══ -->
+  <div class="page-section" id="page-checkin">
+    <div class="card">
+      <div class="card-head">
+        <div class="card-title">New Guest Check-In</div>
+        <button class="btn btn-outline btn-sm" onclick="resetForm()">Clear Form</button>
+      </div>
+
+      <div class="form-grid form-grid-2">
+
+        <!-- Guest Details -->
+        <div class="form-section-title">👤 Guest Details</div>
+
+        <div class="form-group">
+          <label>Full Name <span style="color:var(--danger)">*</span></label>
+          <input type="text" id="gName" placeholder="e.g. Ramesh Kumar"/>
+        </div>
+        <div class="form-group">
+          <label>Phone Number <span style="color:var(--danger)">*</span></label>
+          <input type="tel" id="gPhone" placeholder="+91 98XXXXXXXX"/>
+        </div>
+        <div class="form-group">
+          <label>Email Address</label>
+          <input type="email" id="gEmail" placeholder="guest@email.com"/>
+        </div>
+        <div class="form-group">
+          <label>Home Address <span style="color:var(--danger)">*</span></label>
+          <input type="text" id="gAddress" placeholder="City, State"/>
+        </div>
+
+        <!-- Adults + Children + Total -->
+        <div class="count-row">
+          <div class="form-group">
+            <label>Adults <span style="color:var(--danger)">*</span></label>
+            <input type="number" id="gAdults" min="1" max="20" value="1" oninput="calcTotal()"/>
+          </div>
+          <div class="form-group">
+            <label>Children <small style="color:var(--text3)">(below 12)</small></label>
+            <input type="number" id="gChildren" min="0" max="20" value="0" oninput="calcTotal()"/>
+          </div>
+          <div class="form-group">
+            <label>Total Guests</label>
+            <input type="text" id="gTotal" readonly style="background:var(--sand);font-weight:600;color:var(--clay)"/>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Purpose of Visit</label>
+          <select id="gPurpose">
+            <option value="Tourism">Tourism / Sightseeing</option>
+            <option value="Business">Business</option>
+            <option value="Pilgrimage">Pilgrimage</option>
+            <option value="Medical">Medical</option>
+            <option value="Personal">Personal</option>
+            <option value="Other">Other</option>
+          </select>
+        </div>
+
+        <!-- Room Details -->
+        <div class="form-section-title">🛏️ Room Details</div>
+
+        <div class="form-group">
+          <label>Room Number <span style="color:var(--danger)">*</span></label>
+          <select id="gRoom">
+            <option value="">Select a room</option>
+          </select>
+        </div>
+
+        <!-- Room Type chips — full row -->
+        <div style="grid-column:1/-1">
+          <div class="form-group">
+            <label>Room Type <span style="color:var(--danger)">*</span> <small style="font-weight:400;color:var(--text3)">— choose one from each group</small></label>
+            <div class="room-options">
+              <label class="room-chip"><input type="checkbox" name="bed" value="Single Cot" onchange="chipChanged(this)"/> 🛏 Single Cot</label>
+              <label class="room-chip"><input type="checkbox" name="bed" value="Double Cot" onchange="chipChanged(this)"/> 🛏🛏 Double Cot</label>
+              <div style="width:1px;background:var(--border);margin:0 4px"></div>
+              <label class="room-chip"><input type="checkbox" name="cooling" value="AC" onchange="chipChanged(this)"/> ❄️ AC</label>
+              <label class="room-chip"><input type="checkbox" name="cooling" value="Non-AC" onchange="chipChanged(this)"/> 🌀 Non-AC</label>
+              <div style="width:1px;background:var(--border);margin:0 4px"></div>
+              <label class="room-chip"><input type="checkbox" name="toilet" value="Indian Toilet" onchange="chipChanged(this)"/> 🚽 Indian Toilet</label>
+              <label class="room-chip"><input type="checkbox" name="toilet" value="Western Toilet" onchange="chipChanged(this)"/> 🚻 Western Toilet</label>
+            </div>
+            <input type="hidden" id="gRoomType"/>
+            <div class="room-type-display" id="roomTypeDisplay">No room type selected</div>
+          </div>
+        </div>
+
+        <!-- Stay Duration -->
+        <div class="form-section-title">📅 Stay Duration</div>
+
+        <div class="form-group">
+          <label>Check-In Date &amp; Time <span style="color:var(--danger)">*</span></label>
+          <input type="datetime-local" id="gCheckin"/>
+        </div>
+        <div class="form-group">
+          <label>Expected Check-Out Date &amp; Time <span style="color:var(--danger)">*</span></label>
+          <input type="datetime-local" id="gCheckout"/>
+        </div>
+
+        <!-- Billing -->
+        <div class="form-section-title">💰 Billing</div>
+        <div class="form-group">
+          <label>Room Charge Amount (₹) <small style="color:var(--text3)">(optional)</small></label>
+          <input type="number" id="gAmount" placeholder="e.g. 1200" min="0" step="1"/>
+        </div>
+        <div class="form-group">
+          <label>Payment Status</label>
+          <select id="gPayStatus">
+            <option value="Pending">Pending</option>
+            <option value="Paid">Paid</option>
+            <option value="Partial">Partial</option>
+          </select>
+        </div>
+
+        <!-- ID Proof -->
+        <div class="form-section-title">🪪 Identity Proof</div>
+
+        <div class="form-group">
+          <label>ID Proof Type <span style="color:var(--danger)">*</span></label>
+          <select id="gIdType" onchange="handleIdType()">
+            <option value="">Select ID Type *</option>
+            <option value="Aadhaar Card">Aadhaar Card</option>
+            <option value="PAN Card">PAN Card</option>
+            <option value="Passport">Passport</option>
+            <option value="Voter ID">Voter ID</option>
+            <option value="Driving Licence">Driving Licence</option>
+            <option value="Other">Other (specify)</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>ID Proof Number</label>
+          <input type="text" id="gIdNumber" placeholder="XXXX XXXX XXXX"/>
+        </div>
+
+        <!-- "Other" custom type -->
+        <div class="id-other-wrap" id="idOtherWrap">
+          <div class="form-group">
+            <label>Specify ID Type <span style="color:var(--danger)">*</span></label>
+            <input type="text" id="gIdOther" placeholder="e.g. Bank Passbook, Student ID, Employee Card..."/>
+          </div>
+        </div>
+
+        <!-- Upload -->
+        <div style="grid-column:1/-1">
+          <div class="form-group">
+            <label>Upload ID Proof <span style="color:var(--danger)">*</span> <small style="font-weight:400;color:var(--text3)">(JPG, PNG — max 10MB)</small></label>
+            <div class="upload-zone" id="uploadZone" onclick="document.getElementById('idFile').click()">
+              <input type="file" id="idFile" accept="image/*" style="display:none" onchange="uploadId(this)"/>
+              <div class="uz-icon">📎</div>
+              <p>Click to upload or drag &amp; drop</p>
+              <span>Supports JPG, PNG</span>
+            </div>
+            <div id="uploadStatus" style="margin-top:8px;font-size:13px;display:none"></div>
+            <div id="idPreview" style="margin-top:10px;display:none">
+              <img id="idPreviewImg" src="" style="max-width:260px;border-radius:8px;border:1px solid var(--border)"/>
+            </div>
+          </div>
+        </div>
+
+        <!-- Customer Photo -->
+        <div class="form-section-title">📷 Customer Photo <small style="font-weight:400;color:var(--text3)">(optional)</small></div>
+        <div style="grid-column:1/-1">
+          <div class="form-group">
+            <label>Upload Customer Photo <small style="font-weight:400;color:var(--text3)">(JPG, PNG — max 10MB)</small></label>
+            <div class="upload-zone" id="photoUploadZone" onclick="document.getElementById('photoFile').click()">
+              <input type="file" id="photoFile" accept="image/*" style="display:none" onchange="uploadPhoto(this)"/>
+              <div class="uz-icon">📷</div>
+              <p>Click to upload customer photo</p>
+              <span>Supports JPG, PNG</span>
+            </div>
+            <div id="photoStatus" style="margin-top:8px;font-size:13px;display:none"></div>
+            <div id="photoPreview" style="margin-top:10px;display:none">
+              <img id="photoPreviewImg" src="" style="max-width:120px;max-height:140px;border-radius:8px;border:1px solid var(--border);object-fit:cover"/>
+            </div>
+          </div>
+        </div>
+
+        <!-- Notes -->
+        <div class="form-section-title">📝 Notes</div>
+        <div style="grid-column:1/-1">
+          <div class="form-group">
+            <textarea id="gNotes" placeholder="Vehicle number, special requirements, etc." style="min-height:72px"></textarea>
+          </div>
+        </div>
+
+      </div><!-- /form-grid -->
+
+      <div id="checkinErr" style="display:none;margin-top:12px;padding:10px 14px;background:#fef2f2;border:1px solid #fecaca;border-radius:8px;font-size:13px;color:var(--danger)"></div>
+
+      <div style="display:flex;justify-content:flex-end;gap:12px;margin-top:20px;padding-top:16px;border-top:1px solid var(--border)">
+        <button class="btn btn-outline" onclick="resetForm()">Clear</button>
+        <button class="btn btn-primary" id="submitBtn" onclick="submitCheckin()">
+          <span id="submitLabel">✓ Complete Check-In</span>
+          <div id="submitSpin" class="spin" style="display:none"></div>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ ALL GUESTS ═══ -->
+  <div class="page-section" id="page-guests">
+    <div class="filter-bar">
+      <div class="search-wrap">
+        <svg class="search-icon" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="9" cy="9" r="6"/><path d="m15 15-3-3"/></svg>
+        <input type="text" id="searchIn" placeholder="Search name, phone, room..." oninput="filterGuests()"/>
+      </div>
+      <select class="btn btn-outline btn-sm" id="statusFilter" onchange="filterGuests()">
+        <option value="">All Status</option>
+        <option value="checked-in">Checked In</option>
+        <option value="checked-out">Checked Out</option>
+      </select>
+      <select class="btn btn-outline btn-sm" id="dateFilter" onchange="filterGuests()">
+        <option value="">All Time</option>
+        <option value="today">Today</option>
+        <option value="week">This Week</option>
+        <option value="month">This Month</option>
+      </select>
+      <button class="btn btn-outline btn-sm" onclick="exportCSV()">⬇ Export CSV</button>
+    </div>
+    <div class="card">
+      <div class="card-head">
+        <div class="card-title">Guest Records <span id="guestCountLabel" style="font-size:13px;font-weight:400;color:var(--text3)"></span></div>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>#</th><th>Guest</th><th>Phone</th><th>Room</th><th class="col-p2">Room Type</th>
+              <th class="col-p3">Adults</th><th class="col-p4">Children</th><th class="col-p3">Check-In</th><th class="col-p2">Check-Out</th>
+              <th>Amount</th><th class="col-p2">Pay Status</th><th>Status</th><th class="col-p4">ID Proof</th><th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="guestsTbody">
+            <tr><td colspan="12" style="text-align:center;padding:32px;color:var(--text3)">Loading...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ AUDIT ═══ -->
+  <div class="page-section" id="page-audit">
+    <div class="card">
+      <div class="card-head">
+        <div class="card-title">Audit Records</div>
+        <div style="display:flex;gap:8px">
+          <button class="btn btn-outline btn-sm" onclick="window.print()">🖨 Print</button>
+          <button class="btn btn-outline btn-sm" onclick="exportCSV()">⬇ CSV</button>
+        </div>
+      </div>
+      <div style="display:flex;align-items:center;gap:10px;padding:0 0 16px;flex-wrap:wrap">
+        <input type="date" id="auditFrom" class="btn btn-outline btn-sm"/>
+        <span style="color:var(--text3);font-size:13px">to</span>
+        <input type="date" id="auditTo" class="btn btn-outline btn-sm"/>
+        <button class="btn btn-primary btn-sm" onclick="filterAudit()">Filter</button>
+        <button class="btn btn-outline btn-sm" onclick="renderAudit(allGuests)">Show All</button>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th class="col-p2">Recorded</th><th>Guest</th><th>Phone</th><th class="col-p4">Address</th>
+              <th>Room</th><th class="col-p2">Room Type</th><th class="col-p3">Adults</th><th class="col-p4">Children</th>
+              <th class="col-p3">Check-In</th><th class="col-p2">Check-Out</th><th class="col-p3">ID Type</th><th class="col-p4">ID No.</th>
+              <th>Amount</th><th>Status</th><th class="col-p4">Proof</th><th>View</th>
+            </tr>
+          </thead>
+          <tbody id="auditTbody">
+            <tr><td colspan="15" style="text-align:center;padding:32px;color:var(--text3)">Loading...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ ROOMS ═══ -->
+  <!-- ═══ BOOKING REQUESTS ═══ -->
+  <div class="page-section" id="page-bookings">
+    <div class="section-header" style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px">
+      <h2 style="font-family:var(--font-serif,serif);font-size:22px">Booking Requests</h2>
+      <span style="font-size:13px;color:var(--text3)">Click Confirm to notify the customer via WhatsApp</span>
+    </div>
+    <div id="bookingsList" style="display:flex;flex-direction:column;gap:14px">
+      <p style="color:var(--text3);font-size:14px">Loading booking requests...</p>
+    </div>
+  </div>
+
+  <div class="page-section" id="page-rooms">
+    <div class="card">
+      <div class="card-head">
+        <div class="card-title">Room Status — 4 Floors · 8 Rooms Each · 32 Total</div>
+        <div style="display:flex;gap:14px;font-size:13px;align-items:center">
+          <span><span class="badge badge-green">Available</span></span>
+          <span><span class="badge badge-red">Occupied</span></span>
+        </div>
+      </div>
+      <div id="roomGrid" style="padding:8px 0"><div style="padding:24px;color:var(--text3)">Loading...</div></div>
+    </div>
+  </div>
+
+</div><!-- /main-content -->
+
+<!-- MODAL -->
+<div class="modal-backdrop" id="guestModal">
+  <div class="modal" style="max-width:720px">
+    <div class="modal-head">
+      <div class="modal-title">Guest Details</div>
+      <button class="modal-close" onclick="closeModal()">✕</button>
+    </div>
+    <div class="modal-body" id="modalBody"></div>
+    <div class="modal-foot">
+      <button class="btn btn-outline" onclick="closeModal()">Close</button>
+      <button class="btn btn-success" id="checkoutBtn" onclick="doCheckout()">✓ Mark Checked Out</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast-container" id="toasts"></div>
+
+<script type="module">
+  import { FIREBASE_CONFIG, COLLECTIONS, IMGBB_API_KEY } from "../js/firebase-config.js";
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js";
+  import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-auth.js";
+  import { getFirestore, collection, addDoc, getDocs, doc, updateDoc, query, orderBy, Timestamp }
+    from "https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js";
+
+  const app  = initializeApp(FIREBASE_CONFIG);
+  const auth = getAuth(app);
+  const db   = getFirestore(app);
+  window._staffDb = db;
+
+  window.allGuests = [];
+  window.currentGuestId = null;
+  window.uploadedUrl = "";
+
+  // ── Dates ──
+  const today    = new Date();
+  const todayStr = today.toISOString().split("T")[0];
+  const localISO = d => new Date(d.getTime() - d.getTimezoneOffset()*60000).toISOString().slice(0,16);
+  const tomorrow = new Date(today); tomorrow.setDate(today.getDate()+1);
+
+  document.getElementById("todayDate").textContent =
+    today.toLocaleDateString("en-IN",{weekday:"long",day:"numeric",month:"long",year:"numeric"});
+  document.getElementById("gCheckin").value  = localISO(today);
+  document.getElementById("gCheckout").value = localISO(tomorrow);
+
+  // ── Room number dropdown — 3 floors × 7 rooms ──
+  // Rooms 01-03 = Western Toilet, Rooms 04-07 = Indian Toilet
+  (function buildRooms(){
+    const sel = document.getElementById("gRoom");
+    for(let f=1;f<=3;f++){
+      const og=document.createElement("optgroup");
+      og.label=`Floor ${f}`;
+      for(let r=1;r<=7;r++){
+        const num=`${f}0${r}`;
+        const toilet = r<=3 ? "Western Toilet" : "Indian Toilet";
+        const o=document.createElement("option");
+        o.value=`Room ${num}`; o.textContent=`Room ${num} (${toilet})`;
+        og.appendChild(o);
+      }
+      sel.appendChild(og);
+    }
+  })();
+
+  // ── Guest count ──
+  window.calcTotal = function(){
+    const a=parseInt(document.getElementById("gAdults").value)||0;
+    const c=parseInt(document.getElementById("gChildren").value)||0;
+    document.getElementById("gTotal").value=(a+c)+" guest"+(a+c!==1?"s":"");
+  };
+  window.calcTotal();
+
+  // ── Room type chips — mutually exclusive within group ──
+  window.chipChanged = function(cb){
+    // uncheck siblings in same name group
+    document.querySelectorAll(`.room-chip input[name="${cb.name}"]`).forEach(i=>{
+      if(i!==cb) i.checked=false;
+      i.closest(".room-chip").classList.toggle("selected",i.checked);
+    });
+    cb.closest(".room-chip").classList.toggle("selected",cb.checked);
+    const vals=Array.from(document.querySelectorAll(".room-chip input:checked")).map(i=>i.value);
+    document.getElementById("gRoomType").value=vals.join(", ");
+    document.getElementById("roomTypeDisplay").textContent=
+      vals.length?"Selected: "+vals.join(" · "):"No room type selected";
+  };
+
+  // ── ID type: show "Other" textbox ──
+  window.handleIdType = function(){
+    const v=document.getElementById("gIdType").value;
+    document.getElementById("idOtherWrap").classList.toggle("show",v==="Other");
+  };
+
+  // ── Auth guard ──
+  onAuthStateChanged(auth, async user=>{
+    if(!user){window.location.href="staff-login.html";return;}
+    document.getElementById("userEmail").textContent=user.email;
+    document.getElementById("userName").textContent=user.displayName||user.email.split("@")[0];
+    document.getElementById("userAvatar").textContent=user.email[0].toUpperCase();
+    await loadGuests(); renderDashboard(); renderRooms();
+    loadBookings(db);
+  });
+
+  async function loadGuests(){
+    try{
+      const snap=await getDocs(query(collection(db,COLLECTIONS.GUESTS),orderBy("createdAt","desc")));
+      window.allGuests=snap.docs.map(d=>({id:d.id,...d.data()}));
+    } catch(e){window.allGuests=[];}
+  }
+
+  // ── Dashboard ──
+  function renderDashboard(){
+    const todayG=window.allGuests.filter(g=>(g.checkinDate||"").startsWith(todayStr));
+    const inG=window.allGuests.filter(g=>g.status==="checked-in");
+    const outG=window.allGuests.filter(g=>g.status==="checked-out"&&(g.checkoutActual||"").startsWith(todayStr));
+    document.getElementById("statTotal").textContent=todayG.length;
+    document.getElementById("statCheckedIn").textContent=inG.length;
+    document.getElementById("statCheckedOut").textContent=outG.length;
+    document.getElementById("statAllTime").textContent=window.allGuests.length;
+
+    const el=document.getElementById("recentList");
+    const recent=window.allGuests.slice(0,5);
+    if(!recent.length){
+      el.innerHTML=`<div class="empty-state"><div class="es-icon">👋</div><h3>No check-ins yet</h3><p>Click "+ New Check-In" to get started.</p></div>`;
+      return;
+    }
+    el.innerHTML=`<div class="table-wrap"><table>
+      <thead><tr><th>Guest</th><th>Room</th><th>Adults</th><th>Children</th><th>Check-In</th><th>Amount</th><th>Status</th><th></th></tr></thead>
+      <tbody>${recent.map(g=>`<tr>
+        <td><strong>${g.name}</strong><br><small style="color:var(--text3)">${g.phone}</small></td>
+        <td>${g.roomNumber}</td>
+        <td class="col-p3">${g.adults||g.guestCount||1}</td>
+        <td class="col-p4">${g.children||0}</td>
+        <td class="col-p3">${fmtDT(g.checkinDate)}</td>
+        <td>${g.amount ? "₹"+g.amount : "—"}</td>
+        <td>${badge(g.status)}</td>
+        <td><button class="btn btn-outline btn-sm" onclick="viewGuest('${g.id}')">View</button></td>
+      </tr>`).join("")}
+      </tbody></table></div>`;
+  }
+
+  // ── Rooms: 4 floors × 8 rooms ──
+  function renderRooms(){
+    const occ=new Set(window.allGuests.filter(g=>g.status==="checked-in").map(g=>g.roomNumber));
+    const occGuest={};
+    window.allGuests.filter(g=>g.status==="checked-in").forEach(g=>{ occGuest[g.roomNumber]=g.name; });
+    let html="";
+    for(let f=1;f<=3;f++){
+      const avail = Array.from({length:7},(_,i)=>`Room ${f}0${i+1}`).filter(r=>!occ.has(r)).length;
+      html+=`<div style="margin-bottom:24px">
+        <div class="floor-label" style="font-size:12px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:var(--clay);margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid var(--border)">
+          Floor ${f} &nbsp;<span style="font-weight:400;color:var(--text3);text-transform:none;letter-spacing:0">${avail} of 7 available</span>
+        </div>
+        <div style="display:grid;grid-template-columns:repeat(7,1fr);gap:10px">`;
+      for(let r=1;r<=7;r++){
+        const rn=`Room ${f}0${r}`;
+        const isOcc=occ.has(rn);
+        const toilet = r<=3 ? "🚿 Western" : "🚽 Indian";
+        const guestName = occGuest[rn] ? `<div style="font-size:10px;color:var(--text3);margin-top:3px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:90px">${occGuest[rn]}</div>` : "";
+        html+=`<div class="room-status-card ${isOcc?"occupied":"available"}" style="cursor:pointer" onclick="showPage('checkin')" title="${isOcc?"Occupied by "+occGuest[rn]:"Click to check in"}">
+          <div class="rs-num" style="font-size:16px">R${f}0${r}</div>
+          <div style="font-size:10px;color:var(--text3);margin:2px 0 6px">${toilet}</div>
+          <span class="badge ${isOcc?"badge-red":"badge-green"}">${isOcc?"Occupied":"Free"}</span>
+          ${guestName}
+        </div>`;
+      }
+      html+=`</div></div>`;
+    }
+    document.getElementById("roomGrid").innerHTML=html;
+  }
+
+  // ── Proof download button ──
+  function proofBtn(g){
+    if(!g.idProofUrl) return `<span style="color:var(--text3);font-size:12px">—</span>`;
+    return `<a href="${g.idProofUrl}" target="_blank" download class="btn btn-outline btn-sm">⬇ Download</a>`;
+  }
+
+  // ── All Guests filter ──
+  window.filterGuests=function(){
+    const s=document.getElementById("searchIn").value.toLowerCase();
+    const st=document.getElementById("statusFilter").value;
+    const df=document.getElementById("dateFilter").value;
+    let f=[...window.allGuests];
+    if(s) f=f.filter(g=>(g.name+g.phone+g.roomNumber).toLowerCase().includes(s));
+    if(st) f=f.filter(g=>g.status===st);
+    if(df){
+      const now=new Date();
+      f=f.filter(g=>{
+        const d=new Date(g.checkinDate);
+        if(df==="today") return (g.checkinDate||"").startsWith(todayStr);
+        if(df==="week"){const w=new Date(now);w.setDate(now.getDate()-7);return d>=w;}
+        if(df==="month"){const m=new Date(now);m.setDate(now.getDate()-30);return d>=m;}
+      });
+    }
+    document.getElementById("guestCountLabel").textContent=`(${f.length} records)`;
+    document.getElementById("guestsTbody").innerHTML=f.length?f.map((g,i)=>`<tr>
+      <td>${i+1}</td>
+      <td><strong>${g.name}</strong><br><small style="color:var(--text3)">${g.address||""}</small></td>
+      <td>${g.phone}</td>
+      <td>${g.roomNumber}</td>
+      <td class="col-p2"><small>${g.roomType||"–"}</small></td>
+      <td class="col-p3">${g.adults||g.guestCount||1}</td>
+      <td class="col-p4">${g.children||0}</td>
+      <td class="col-p3">${fmtDT(g.checkinDate)}</td>
+      <td class="col-p2">${fmtDT(g.checkoutDate)}</td>
+      <td>${g.amount ? "₹"+g.amount : "—"}</td>
+      <td class="col-p2"><span style="font-size:11px;padding:2px 8px;border-radius:99px;background:${g.payStatus==="Paid"?"#dcfce7":g.payStatus==="Partial"?"#fef9c3":"#fee2e2"};color:${g.payStatus==="Paid"?"#166534":g.payStatus==="Partial"?"#854d0e":"#991b1b"}">${g.payStatus||"Pending"}</span></td>
+      <td>${badge(g.status)}</td>
+      <td class="col-p4">${proofBtn(g)}</td>
+      <td style="display:flex;gap:5px;flex-wrap:wrap">
+        <button class="btn btn-outline btn-sm" onclick="viewGuest('${g.id}')">View</button>
+        ${g.status==="checked-in"?`<button class="btn btn-success btn-sm" onclick="quickOut('${g.id}')">Check Out</button>`:""}
+      </td>
+    </tr>`).join(""):
+    `<tr><td colspan="12"><div class="empty-state"><div class="es-icon">🔍</div><h3>No results</h3></div></td></tr>`;
+  };
+
+  // ── Audit ──
+  window.renderAudit=function(list){
+    document.getElementById("auditTbody").innerHTML=list.length?list.map(g=>`<tr>
+      <td class="col-p2">${fmtDT(g.createdAt?.toDate?.()?.toISOString?.()||g.checkinDate)}</td>
+      <td><strong>${g.name}</strong></td>
+      <td>${g.phone}</td>
+      <td class="col-p4">${g.address||"–"}</td>
+      <td>${g.roomNumber}</td>
+      <td class="col-p2"><small>${g.roomType||"–"}</small></td>
+      <td class="col-p3">${g.adults||g.guestCount||1}</td>
+      <td class="col-p4">${g.children||0}</td>
+      <td class="col-p3">${fmtDT(g.checkinDate)}</td>
+      <td class="col-p2">${fmtDT(g.checkoutDate)}</td>
+      <td class="col-p3">${g.idProofType||"–"}</td>
+      <td class="col-p4">${g.idProofNumber||"–"}</td>
+      <td>${g.amount ? "₹"+g.amount : "—"}</td>
+      <td>${badge(g.status)}</td>
+      <td class="col-p4">${proofBtn(g)}</td>
+      <td><button class="btn btn-outline btn-sm" onclick="viewGuest('${g.id}')">View</button></td>
+    </tr>`).join(""):
+    `<tr><td colspan="15" style="text-align:center;padding:32px;color:var(--text3)">No records</td></tr>`;
+  };
+
+  window.filterAudit=function(){
+    const from=document.getElementById("auditFrom").value, to=document.getElementById("auditTo").value;
+    let f=[...window.allGuests];
+    if(from) f=f.filter(g=>(g.checkinDate||"")>=from);
+    if(to)   f=f.filter(g=>(g.checkinDate||"")<=to+"T23:59");
+    window.renderAudit(f);
+  };
+
+  // ── Submit Check-In ──
+  window.submitCheckin=async function(){
+    const name    =document.getElementById("gName").value.trim();
+    const phone   =document.getElementById("gPhone").value.trim();
+    const email   =document.getElementById("gEmail").value.trim();
+    const address =document.getElementById("gAddress").value.trim();
+    const adults  =parseInt(document.getElementById("gAdults").value)||1;
+    const children=parseInt(document.getElementById("gChildren").value)||0;
+    const purpose =document.getElementById("gPurpose").value;
+    const room    =document.getElementById("gRoom").value;
+    const roomType=document.getElementById("gRoomType").value;
+    const checkin =document.getElementById("gCheckin").value;
+    const amount  =document.getElementById("gAmount").value.trim();
+    const payStatus=document.getElementById("gPayStatus").value;
+    const photoUrl=window.uploadedPhotoUrl||"";
+    const checkout=document.getElementById("gCheckout").value;
+    let   idType  =document.getElementById("gIdType").value;
+    const idNum   =document.getElementById("gIdNumber").value.trim();
+    const idOther =document.getElementById("gIdOther").value.trim();
+    const notes   =document.getElementById("gNotes").value.trim();
+    const errEl   =document.getElementById("checkinErr");
+
+    if(idType==="Other") idType=idOther||"Other";
+
+    errEl.style.display="none";
+    if(!name)    {showErr("Guest name is required."); return;}
+    if(!phone)   {showErr("Phone number is required."); return;}
+    if(!address) {showErr("Home address is required."); return;}
+    if(!room)    {showErr("Please select a room."); return;}
+    if(!roomType){showErr("Please select the room type (bed, cooling, toilet)."); return;}
+    if(!idType)  {showErr("Please select the ID proof type."); return;}
+    if(!window.uploadedUrl){showErr("Please upload the guest's ID proof image."); return;}
+    if(!checkin) {showErr("Check-in date & time is required."); return;}
+    if(!checkout){showErr("Check-out date & time is required."); return;}
+    if(new Date(checkout)<=new Date(checkin)){showErr("Check-out must be after check-in."); return;}
+    if(document.getElementById("gIdType").value==="Other"&&!idOther){showErr("Please specify the ID proof type."); return;}
+
+    setSubmit(true);
+    try{
+      await addDoc(collection(db,COLLECTIONS.GUESTS),{
+        name,phone,email,address,
+        adults,children,guestCount:adults+children,
+        purpose,roomNumber:room,roomType,
+        checkinDate:checkin,checkoutDate:checkout,
+        idProofType:idType||"Not Provided",
+        idProofNumber:idNum,
+        idProofUrl:window.uploadedUrl||"",
+        amount:amount?parseFloat(amount):null,
+        payStatus:payStatus||"Pending",
+        photoUrl:photoUrl||"",
+        notes,status:"checked-in",
+        createdAt:Timestamp.now(),
+        checkedInBy:auth.currentUser?.email
+      });
+      toast("✓ "+name+" checked in to "+room,"success");
+      await loadGuests(); renderDashboard(); renderRooms();
+      resetForm(); showPage("guests");
+    } catch(e){showErr("Error saving: "+e.message);}
+    finally{setSubmit(false);}
+
+    function showErr(m){errEl.textContent=m;errEl.style.display="block";}
+  };
+
+  function setSubmit(on){
+    document.getElementById("submitLabel").style.display=on?"none":"block";
+    document.getElementById("submitSpin").style.display=on?"block":"none";
+    document.getElementById("submitBtn").disabled=on;
+  }
+
+  window.resetForm=function(){
+    window.uploadedPhotoUrl="";
+    const photoStatus=document.getElementById("photoStatus");
+    if(photoStatus){photoStatus.style.display="none";}
+    const photoPreview=document.getElementById("photoPreview");
+    if(photoPreview){photoPreview.style.display="none";}
+    const photoZone=document.getElementById("photoUploadZone");
+    if(photoZone){photoZone.style.display="flex";photoZone.style.opacity="1";}
+    document.getElementById("photoFile").value="";
+    ["gName","gPhone","gEmail","gAddress","gNotes","gIdNumber","gIdOther"].forEach(id=>document.getElementById(id).value="");
+    document.getElementById("gAdults").value="1";
+    document.getElementById("gChildren").value="0"; calcTotal();
+    document.getElementById("gPurpose").value="Tourism";
+    document.getElementById("gRoom").value="";
+    document.getElementById("gRoomType").value="";
+    document.getElementById("gIdType").value="";
+    document.getElementById("gCheckin").value=localISO(today);
+    document.getElementById("gCheckout").value=localISO(tomorrow);
+    document.getElementById("idPreview").style.display="none";
+    document.getElementById("uploadStatus").style.display="none";
+    document.getElementById("checkinErr").style.display="none";
+    document.getElementById("idOtherWrap").classList.remove("show");
+    document.getElementById("roomTypeDisplay").textContent="No room type selected";
+    document.querySelectorAll(".room-chip input").forEach(i=>i.checked=false);
+    document.querySelectorAll(".room-chip").forEach(c=>c.classList.remove("selected"));
+    window.uploadedUrl="";
+  window.uploadedPhotoUrl="";
+  };
+
+  // ── ID Upload ──
+  window.uploadId=async function(input){
+    const file=input.files[0]; if(!file) return;
+    const st=document.getElementById("uploadStatus");
+    st.style.display="block"; st.textContent="⏳ Uploading..."; st.style.color="var(--clay)";
+    try{
+      const fd=new FormData(); fd.append("image",file);
+      const res=await fetch(`https://api.imgbb.com/1/upload?key=${IMGBB_API_KEY}`,{method:"POST",body:fd});
+      const data=await res.json();
+      if(data.success){
+        window.uploadedUrl=data.data.url;
+        st.textContent="✓ Uploaded successfully"; st.style.color="var(--success)";
+        document.getElementById("idPreviewImg").src=window.uploadedUrl;
+        document.getElementById("idPreview").style.display="block";
+      } else throw new Error();
+    } catch(e){
+      st.textContent="⚠ Upload failed — check ImgBB API key in firebase-config.js";
+      st.style.color="var(--danger)";
+    }
+  };
+  const zone=document.getElementById("uploadZone");
+  zone.addEventListener("dragover",e=>{e.preventDefault();zone.classList.add("drag");});
+  zone.addEventListener("dragleave",()=>zone.classList.remove("drag"));
+  zone.addEventListener("drop",e=>{
+    e.preventDefault();zone.classList.remove("drag");
+    if(e.dataTransfer.files[0]){document.getElementById("idFile").files=e.dataTransfer.files;window.uploadId(document.getElementById("idFile"));}
+  });
+
+  // ── View Guest Modal ──
+  window.uploadPhoto=async function(input){
+    const file=input.files[0]; if(!file) return;
+    const st=document.getElementById("photoStatus");
+    const zone=document.getElementById("photoUploadZone");
+    st.style.display="block"; st.textContent="⏳ Uploading photo..."; st.style.color="var(--clay)";
+    zone.style.opacity="0.6";
+    try{
+      const fd=new FormData(); fd.append("image",file);
+      const res=await fetch(`https://api.imgbb.com/1/upload?key=${IMGBB_API_KEY}`,{method:"POST",body:fd});
+      const data=await res.json();
+      if(data.success){
+        window.uploadedPhotoUrl=data.data.url;
+        st.textContent="✓ Photo uploaded"; st.style.color="var(--success)";
+        const prev=document.getElementById("photoPreview");
+        document.getElementById("photoPreviewImg").src=data.data.url;
+        prev.style.display="block";
+        zone.style.display="none";
+      } else { throw new Error("Upload failed"); }
+    }catch(e){
+      st.textContent="⚠ Upload failed. Try again."; st.style.color="var(--danger)";
+      zone.style.opacity="1";
+    }
+  };
+
+  window.viewGuest=function(id){
+    const g=window.allGuests.find(x=>x.id===id); if(!g) return;
+    window.currentGuestId=id;
+    document.getElementById("checkoutBtn").style.display=g.status==="checked-in"?"flex":"none";
+    document.getElementById("modalBody").innerHTML=`
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:18px">
+        <div>
+          <p style="font-size:11px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:var(--clay);margin-bottom:8px">Guest Info</p>
+          ${r("Name",g.name)}${r("Phone",g.phone)}${r("Email",g.email||"–")}${r("Address",g.address||"–")}${r("Purpose",g.purpose||"–")}
+        </div>
+        <div>
+          <p style="font-size:11px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:var(--clay);margin-bottom:8px">Guest Count</p>
+          ${r("Adults",g.adults||g.guestCount||1)}
+          ${r("Children (below 12)",g.children||0)}
+          ${r("Total",(g.adults||g.guestCount||1)+(g.children||0)+" guests")}
+        </div>
+        <div>
+          <p style="font-size:11px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:var(--clay);margin-bottom:8px">Room & Stay</p>
+          ${r("Room",g.roomNumber)}${r("Room Type",g.roomType||"–")}
+          ${r("Check-In",fmtDT(g.checkinDate))}${r("Check-Out",fmtDT(g.checkoutDate))}
+          ${r("Status",badge(g.status))}${r("Added By",g.checkedInBy||"–")}
+        </div>
+        <div>
+          <p style="font-size:11px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:var(--clay);margin-bottom:8px">Billing</p>
+          ${r("Amount Charged", g.amount ? "₹"+g.amount : "Not specified")}
+          ${r("Payment Status", g.payStatus || "—")}
+          ${g.photoUrl ? `<div style="margin-top:10px"><p style="font-size:11px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:var(--clay);margin-bottom:6px">Customer Photo</p><img src="${g.photoUrl}" style="width:90px;height:110px;object-fit:cover;border-radius:8px;border:1px solid var(--border)"/></div>` : ""}
+        </div>
+        <div>
+          <p style="font-size:11px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:var(--clay);margin-bottom:8px">Identity Proof</p>
+          ${r("Type",g.idProofType||"Not Provided")}${r("Number",g.idProofNumber||"–")}
+          ${g.idProofUrl?`
+            <div class="proof-actions">
+              <img src="${g.idProofUrl}" class="proof-thumb" onclick="window.open('${g.idProofUrl}','_blank')" title="Click to enlarge"/>
+              <div style="display:flex;flex-direction:column;gap:6px">
+                <a href="${g.idProofUrl}" target="_blank" download class="btn btn-primary btn-sm">⬇ Download Proof</a>
+                <a href="${g.idProofUrl}" target="_blank" class="btn btn-outline btn-sm">👁 View Full Size</a>
+              </div>
+            </div>`:`<p style="font-size:13px;color:var(--text3);margin-top:6px">No proof uploaded</p>`}
+        </div>
+        ${g.notes?`<div style="grid-column:1/-1"><p style="font-size:11px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:var(--clay);margin-bottom:8px">Notes</p><p style="font-size:14px;color:var(--text2)">${g.notes}</p></div>`:""}
+      </div>`;
+    document.getElementById("guestModal").classList.add("open");
+  };
+
+  window.doCheckout=async function(){
+    if(!window.currentGuestId) return;
+    try{
+      await updateDoc(doc(db,COLLECTIONS.GUESTS,window.currentGuestId),{status:"checked-out",checkoutActual:new Date().toISOString()});
+      toast("Guest checked out successfully","success");
+      closeModal();
+      await loadGuests(); renderDashboard(); filterGuests(); renderRooms();
+    } catch(e){toast("Error: "+e.message,"error");}
+  };
+
+  window.quickOut=async function(id){
+    if(!confirm("Mark this guest as checked out?")) return;
+    try{
+      await updateDoc(doc(db,COLLECTIONS.GUESTS,id),{status:"checked-out",checkoutActual:new Date().toISOString()});
+      toast("Guest checked out","success");
+      await loadGuests(); renderDashboard(); filterGuests(); renderRooms();
+    } catch(e){toast("Error: "+e.message,"error");}
+  };
+
+  window.closeModal=()=>document.getElementById("guestModal").classList.remove("open");
+
+  // ── Export CSV ──
+  window.exportCSV=function(){
+    const cols=["Name","Phone","Email","Address","Room","Room Type","Adults","Children","Check-In","Check-Out","ID Type","ID No","Status"];
+    const rows=window.allGuests.map(g=>[
+      g.name,g.phone,g.email||"",g.address||"",g.roomNumber,g.roomType||"",
+      g.adults||g.guestCount||1,g.children||0,
+      g.checkinDate,g.checkoutDate,g.idProofType||"",g.idProofNumber||"",g.status
+    ].map(v=>`"${v}"`).join(","));
+    const csv=[cols.join(","),...rows].join("\n");
+    const a=document.createElement("a");
+    a.href="data:text/csv;charset=utf-8,"+encodeURIComponent(csv);
+    a.download="guests-"+todayStr+".csv"; a.click();
+  };
+
+  // ── Page navigation ──
+  window.showPage=function(page){
+    document.querySelectorAll(".page-section").forEach(s=>s.classList.remove("active"));
+    document.getElementById("page-"+page).classList.add("active");
+    document.querySelectorAll(".sb-link").forEach(b=>b.classList.remove("active"));
+    document.querySelectorAll(".sb-link").forEach(b=>{if(b.getAttribute("onclick")?.includes(page)) b.classList.add("active");});
+    const T={
+      dashboard:["Dashboard","Today's overview"],
+      checkin:  ["New Check-In","Register a new guest"],
+      guests:   ["All Guests","Search and manage records"],
+      audit:    ["Audit Records","Complete guest log for compliance"],
+      rooms:    ["Room Status","4 floors · 8 rooms each · 32 total"]
+    };
+    if(T[page]){
+      document.getElementById("pageTitle").textContent=T[page][0];
+      document.getElementById("pageSubtitle").textContent=T[page][1];
+    }
+    if(page==="guests") filterGuests();
+    if(page==="audit")  renderAudit(window.allGuests);
+    if(page==="rooms")  renderRooms();
+    document.getElementById("sidebar").classList.remove("open");
+  };
+
+  window.doLogout=async()=>{await signOut(auth); window.location.href="staff-login.html";};
+
+  function toast(msg,type="info"){
+    const t=document.createElement("div");
+    t.className=`toast toast-${type}`;
+    t.innerHTML=`<span>${msg}</span>`;
+    document.getElementById("toasts").appendChild(t);
+    setTimeout(()=>t.remove(),4000);
+  }
+
+  function fmtDT(d){
+    if(!d) return "–";
+    try{
+      const dt=new Date(d);
+      return dt.toLocaleDateString("en-IN",{day:"2-digit",month:"short",year:"numeric"})
+        +" "+dt.toLocaleTimeString("en-IN",{hour:"2-digit",minute:"2-digit",hour12:true});
+    }catch(e){return d;}
+  }
+
+  function badge(s){
+    return s==="checked-in"
+      ?`<span class="badge badge-green">Checked In</span>`
+      :`<span class="badge badge-gray">Checked Out</span>`;
+  }
+
+  function r(label,val){
+    return `<div style="display:flex;gap:10px;padding:5px 0;border-bottom:1px solid var(--border);font-size:13.5px">
+      <span style="color:var(--text3);min-width:120px;flex-shrink:0">${label}</span>
+      <span style="color:var(--text);font-weight:500">${val}</span>
+    </div>`;
+  }
+
+  setTimeout(()=>renderAudit(window.allGuests),1200);
+
+  // ── BOOKING REQUESTS ──
+  async function loadBookings(db) {
+    try {
+      const { collection, getDocs, doc, updateDoc, orderBy, query } = await import("https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js");
+      const snap = await getDocs(query(collection(db, COLLECTIONS.BOOKINGS), orderBy("createdAt","desc")));
+      const bookings = snap.docs.map(d => ({id: d.id, ...d.data()}));
+
+      // Update badge
+      const pending = bookings.filter(b => b.status === "pending").length;
+      const badge = document.getElementById("bookingBadge");
+      if (pending > 0) { badge.textContent = pending; badge.style.display = "inline"; }
+      else { badge.style.display = "none"; }
+
+      renderBookings(bookings, db);
+    } catch(e) { console.error("Bookings load error:", e); }
+  }
+
+  function renderBookings(bookings, db) {
+    const el = document.getElementById("bookingsList");
+    if (!bookings.length) {
+      el.innerHTML = '<p style="color:var(--text3);font-size:14px">No booking requests yet.</p>';
+      return;
+    }
+    el.innerHTML = bookings.map(b => `
+      <div class="booking-card ${b.status}" id="bcard-${b.id}">
+        <div class="booking-card-info">
+          <div class="booking-card-name">${b.name}</div>
+          <div class="booking-card-meta">
+            <strong>Phone:</strong> ${b.phone}<br/>
+            ${b.checkin  ? `<strong>Check-in:</strong> ${b.checkin}&nbsp;&nbsp;` : ''}
+            ${b.checkout ? `<strong>Check-out:</strong> ${b.checkout}<br/>` : ''}
+            <strong>Occupants:</strong> ${b.occupancy}&nbsp;&nbsp;
+            <strong>Rooms:</strong> ${b.rooms}
+            ${b.note ? `<br/><strong>Note:</strong> ${b.note}` : ''}
+          </div>
+        </div>
+        <div class="booking-card-actions">
+          <span class="booking-card-status ${b.status}">${b.status === 'pending' ? '⏳ Pending' : '✅ Confirmed'}</span>
+          ${b.status === 'pending' ? `
+            <button class="btn-confirm" onclick="confirmBooking('${b.id}','${b.phone}','${b.name}')">
+              <svg viewBox="0 0 24 24" fill="currentColor" width="15" height="15"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+              Confirm & Notify
+            </button>
+            <button class="btn-decline" onclick="declineBooking('${b.id}','${b.phone}','${b.name}')">Decline</button>
+          ` : ''}
+        </div>
+      </div>`).join('');
+
+    // Store db reference for confirm/decline
+    window._bookingDb = db;
+  }
+
+  window.confirmBooking = async function(id, phone, name) {
+    try {
+      const { doc, updateDoc } = await import("https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js");
+      await updateDoc(doc(window._bookingDb, COLLECTIONS.BOOKINGS, id), { status: "confirmed" });
+
+      // Update card UI
+      const card = document.getElementById("bcard-" + id);
+      if (card) {
+        card.className = "booking-card confirmed";
+        card.querySelector(".booking-card-actions").innerHTML = '<span class="booking-card-status confirmed">✅ Confirmed</span>';
+      }
+
+      // Update badge count
+      const badge = document.getElementById("bookingBadge");
+      const count = parseInt(badge.textContent) - 1;
+      if (count <= 0) badge.style.display = "none";
+      else badge.textContent = count;
+
+      // Open WhatsApp to send confirmation to customer
+      const cleanPhone = "91" + phone.replace(/\D/g, "").slice(-10);
+      const msg = `🏨 *Parichay Lodge — Booking Confirmed!*
+
+Dear ${name},
+
+Your room booking request has been *confirmed* ✅
+
+We look forward to welcoming you to Parichay Lodge, Hassan.
+
+For any queries, please call us or reply to this message.
+
+📍 Parichay Lodge, Hassan, Karnataka`;
+      window.open("https://wa.me/" + cleanPhone + "?text=" + encodeURIComponent(msg), "_blank");
+
+    } catch(e) { alert("Error confirming booking: " + e.message); }
+  };
+
+  window.declineBooking = async function(id, phone, name) {
+    if (!confirm("Decline this booking request?\n\nA WhatsApp message will open to notify the customer.")) return;
+    try {
+      const { doc, updateDoc } = await import("https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js");
+      await updateDoc(doc(window._bookingDb, COLLECTIONS.BOOKINGS, id), { status: "declined" });
+
+      // Update card UI
+      const card = document.getElementById("bcard-" + id);
+      if (card) {
+        card.className = "booking-card declined";
+        card.querySelector(".booking-card-actions").innerHTML = '<span class="booking-card-status" style="background:#fee2e2;color:#991b1b;font-size:11px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;padding:3px 10px;border-radius:99px;">❌ Declined</span>';
+      }
+
+      // Update badge
+      const badge = document.getElementById("bookingBadge");
+      const count = parseInt(badge.textContent || "0") - 1;
+      if (count <= 0) badge.style.display = "none";
+      else badge.textContent = count;
+
+      // Open WhatsApp to notify customer
+      const cleanPhone = "91" + (phone||"").replace(/\D/g,"").slice(-10);
+      const msg = `🏨 *Parichay Lodge — Booking Update*\n\nDear ${name||"Guest"},\n\nWe regret to inform you that we are unable to confirm your room booking request at this time.\n\nThis may be due to unavailability of rooms for your requested dates.\n\nPlease feel free to contact us to check alternative dates or availability.\n\n📞 +91 90603 27151\n📍 Parichay Lodge, Hassan, Karnataka`;
+      window.open("https://wa.me/" + cleanPhone + "?text=" + encodeURIComponent(msg), "_blank");
+
+    } catch(e) { alert("Error declining booking: " + e.message); }
+  };
+
+  setTimeout(()=>renderAudit(window.allGuests),1200);
+</script>
+</body>
+</html>
