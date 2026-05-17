@@ -260,8 +260,8 @@
           </select>
         </div>
         <div class="form-group">
-          <label>ID Proof Number</label>
-          <input type="text" id="gIdNumber" placeholder="XXXX XXXX XXXX"/>
+          <label>ID Proof Number <span style="color:var(--danger)">*</span></label>
+          <input type="text" id="gIdNumber" placeholder="XXXX XXXX XXXX" required/>
         </div>
 
         <!-- "Other" custom type -->
@@ -273,14 +273,14 @@
         </div>
 
         <!-- Upload -->
-        <div style="grid-column:1/-1">
+        <div style="grid-column:1/-1" id="idUploadSection">
           <div class="form-group">
-            <label>Upload ID Proof <span style="color:var(--danger)">*</span> <small style="font-weight:400;color:var(--text3)">(JPG, PNG — max 10MB)</small></label>
+            <label id="idUploadLabel">Upload ID Proof <span style="color:var(--danger)" id="idProofStar">*</span> <small style="font-weight:400;color:var(--text3)">(JPG, PNG — max 10MB)</small></label>
             <div class="upload-zone" id="uploadZone" onclick="document.getElementById('idFile').click()">
-              <input type="file" id="idFile" accept="image/*" style="display:none" onchange="uploadId(this)"/>
+              <input type="file" id="idFile" accept="image/*,application/pdf" multiple style="display:none" onchange="uploadId(this)"/>
               <div class="uz-icon">📎</div>
               <p>Click to upload or drag &amp; drop</p>
-              <span>Supports JPG, PNG</span>
+              <span>Supports JPG, PNG — multiple files allowed</span>
             </div>
             <div id="uploadStatus" style="margin-top:8px;font-size:13px;display:none"></div>
             <div id="idPreview" style="margin-top:10px;display:none">
@@ -442,6 +442,8 @@
     <div class="modal-body" id="modalBody"></div>
     <div class="modal-foot">
       <button class="btn btn-outline" onclick="closeModal()">Close</button>
+      <button class="btn btn-outline" id="editGuestBtn" onclick="editGuest()" style="color:var(--clay);border-color:var(--clay)">✏️ Edit</button>
+      <button class="btn btn-sm" id="recheckinBtn" onclick="reCheckin(window.currentGuestId)" style="background:#e0f2fe;color:#0369a1;border:1px solid #bae6fd;display:none">🔄 Re-checkin</button>
       <button class="btn btn-success" id="checkoutBtn" onclick="doCheckout()">✓ Mark Checked Out</button>
     </div>
   </div>
@@ -476,22 +478,26 @@
   document.getElementById("gCheckin").value  = localISO(today);
   document.getElementById("gCheckout").value = localISO(tomorrow);
 
-  // ── Room number dropdown — 3 floors × 7 rooms ──
-  // Rooms 01-03 = Western Toilet, Rooms 04-07 = Indian Toilet
+  // ── Room number dropdown — 3 floors × 7 rooms = 101-121 ──
+  // Rooms x1-x3 = Western Toilet, Rooms x4-x7 = Indian Toilet
   (function buildRooms(){
     const sel = document.getElementById("gRoom");
-    for(let f=1;f<=3;f++){
-      const og=document.createElement("optgroup");
-      og.label=`Floor ${f}`;
-      for(let r=1;r<=7;r++){
-        const num=`${f}0${r}`;
-        const toilet = r<=3 ? "Western Toilet" : "Indian Toilet";
-        const o=document.createElement("option");
-        o.value=`Room ${num}`; o.textContent=`Room ${num} (${toilet})`;
+    const floors = [
+      { label: "Floor 1 (Rooms 101–107)", rooms: [101,102,103,104,105,106,107] },
+      { label: "Floor 2 (Rooms 108–114)", rooms: [108,109,110,111,112,113,114] },
+      { label: "Floor 3 (Rooms 115–121)", rooms: [115,116,117,118,119,120,121] },
+    ];
+    floors.forEach((fl, fi) => {
+      const og = document.createElement("optgroup");
+      og.label = fl.label;
+      fl.rooms.forEach((rn, ri) => {
+        const toilet = ri < 3 ? "Western Toilet" : "Indian Toilet";
+        const o = document.createElement("option");
+        o.value = `Room ${rn}`; o.textContent = `Room ${rn} (${toilet})`;
         og.appendChild(o);
-      }
+      });
       sel.appendChild(og);
-    }
+    });
   })();
 
   // ── Guest count ──
@@ -515,6 +521,19 @@
     document.getElementById("roomTypeDisplay").textContent=
       vals.length?"Selected: "+vals.join(" · "):"No room type selected";
   };
+
+  // ── updateRoomType — set chips from saved roomType string ──
+  function updateRoomType(){
+    const roomType = document.getElementById("gRoomType").value || "";
+    const parts = roomType.split(",").map(s=>s.trim());
+    document.querySelectorAll(".room-chip input").forEach(input=>{
+      const checked = parts.includes(input.value);
+      input.checked = checked;
+      input.closest(".room-chip").classList.toggle("selected", checked);
+    });
+    const vals = Array.from(document.querySelectorAll(".room-chip input:checked")).map(i=>i.value);
+    document.getElementById("roomTypeDisplay").textContent = vals.length ? "Selected: "+vals.join(" · ") : "No room type selected";
+  }
 
   // ── ID type: show "Other" textbox ──
   window.handleIdType = function(){
@@ -575,28 +594,33 @@
     const occ=new Set(window.allGuests.filter(g=>g.status==="checked-in").map(g=>g.roomNumber));
     const occGuest={};
     window.allGuests.filter(g=>g.status==="checked-in").forEach(g=>{ occGuest[g.roomNumber]=g.name; });
+    const floors = [
+      { label:"Floor 1", rooms:[101,102,103,104,105,106,107] },
+      { label:"Floor 2", rooms:[108,109,110,111,112,113,114] },
+      { label:"Floor 3", rooms:[115,116,117,118,119,120,121] },
+    ];
     let html="";
-    for(let f=1;f<=3;f++){
-      const avail = Array.from({length:7},(_,i)=>`Room ${f}0${i+1}`).filter(r=>!occ.has(r)).length;
+    floors.forEach((fl,fi) => {
+      const avail = fl.rooms.filter(rn=>!occ.has(`Room ${rn}`)).length;
       html+=`<div style="margin-bottom:24px">
-        <div class="floor-label" style="font-size:12px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:var(--clay);margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid var(--border)">
-          Floor ${f} &nbsp;<span style="font-weight:400;color:var(--text3);text-transform:none;letter-spacing:0">${avail} of 7 available</span>
+        <div style="font-size:12px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:var(--clay);margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid var(--border)">
+          ${fl.label} &nbsp;<span style="font-weight:400;color:var(--text3);text-transform:none;letter-spacing:0">${avail} of 7 available</span>
         </div>
         <div style="display:grid;grid-template-columns:repeat(7,1fr);gap:10px">`;
-      for(let r=1;r<=7;r++){
-        const rn=`Room ${f}0${r}`;
-        const isOcc=occ.has(rn);
-        const toilet = r<=3 ? "🚿 Western" : "🚽 Indian";
-        const guestName = occGuest[rn] ? `<div style="font-size:10px;color:var(--text3);margin-top:3px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:90px">${occGuest[rn]}</div>` : "";
-        html+=`<div class="room-status-card ${isOcc?"occupied":"available"}" style="cursor:pointer" onclick="showPage('checkin')" title="${isOcc?"Occupied by "+occGuest[rn]:"Click to check in"}">
-          <div class="rs-num" style="font-size:16px">R${f}0${r}</div>
-          <div style="font-size:10px;color:var(--text3);margin:2px 0 6px">${toilet}</div>
+      fl.rooms.forEach((rn,ri) => {
+        const rnStr=`Room ${rn}`;
+        const isOcc=occ.has(rnStr);
+        const toilet = ri<3 ? "🚿 Western" : "🚽 Indian";
+        const guestName = occGuest[rnStr] ? `<div style="font-size:10px;color:var(--text3);margin-top:3px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:90px">${occGuest[rnStr]}</div>` : "";
+        html+=`<div class="room-status-card ${isOcc?"occupied":"available"}" style="cursor:pointer" onclick="showPage('checkin')" title="${isOcc?"Occupied by "+occGuest[rnStr]:"Click to check in"}">
+          <div class="rs-num" style="font-size:15px">${rn}</div>
+          <div style="font-size:10px;color:var(--text3);margin:2px 0 5px">${toilet}</div>
           <span class="badge ${isOcc?"badge-red":"badge-green"}">${isOcc?"Occupied":"Free"}</span>
           ${guestName}
         </div>`;
-      }
+      });
       html+=`</div></div>`;
-    }
+    });
     document.getElementById("roomGrid").innerHTML=html;
   }
 
@@ -640,7 +664,11 @@
       <td class="col-p4">${proofBtn(g)}</td>
       <td style="display:flex;gap:5px;flex-wrap:wrap">
         <button class="btn btn-outline btn-sm" onclick="viewGuest('${g.id}')">View</button>
-        ${g.status==="checked-in"?`<button class="btn btn-success btn-sm" onclick="quickOut('${g.id}')">Check Out</button>`:""}
+        ${g.status==="checked-in"
+          ? `<button class="btn btn-success btn-sm" onclick="quickOut('${g.id}')">Check Out</button>`
+          : g.status==="checked-out"
+            ? `<button class="btn btn-sm" style="background:#e0f2fe;color:#0369a1;border:1px solid #bae6fd;border-radius:6px;padding:5px 10px;font-size:12px;cursor:pointer" onclick="reCheckin('${g.id}')">🔄 Re-checkin</button>`
+            : ""}
       </td>
     </tr>`).join(""):
     `<tr><td colspan="12"><div class="empty-state"><div class="es-icon">🔍</div><h3>No results</h3></div></td></tr>`;
@@ -705,10 +733,11 @@
     if(!name)    {showErr("Guest name is required."); return;}
     if(!phone)   {showErr("Phone number is required."); return;}
     if(!address) {showErr("Home address is required."); return;}
+    if(!idNum)   {showErr("ID Proof Number is required."); document.getElementById("gIdNumber").focus(); return;}
     if(!room)    {showErr("Please select a room."); return;}
     if(!roomType){showErr("Please select the room type (bed, cooling, toilet)."); return;}
     if(!idType)  {showErr("Please select the ID proof type."); return;}
-    if(!window.uploadedUrl){showErr("Please upload the guest's ID proof image."); return;}
+    if(!window.uploadedUrl && !window.isReCheckin){showErr("Please upload the guest's ID proof image."); return;}
     if(!checkin) {showErr("Check-in date & time is required."); return;}
     if(!checkout){showErr("Check-out date & time is required."); return;}
     if(new Date(checkout)<=new Date(checkin)){showErr("Check-out must be after check-in."); return;}
@@ -724,6 +753,7 @@
         idProofType:idType||"Not Provided",
         idProofNumber:idNum,
         idProofUrl:window.uploadedUrl||"",
+        idProofUrls:window.uploadedUrls||[],
         amount:amount?parseFloat(amount):null,
         payStatus:payStatus||"Pending",
         photoUrl:photoUrl||"",
@@ -733,6 +763,7 @@
       });
       toast("✓ "+name+" checked in to "+room,"success");
       await loadGuests(); renderDashboard(); renderRooms();
+      window.isReCheckin = false;
       resetForm(); showPage("guests");
     } catch(e){showErr("Error saving: "+e.message);}
     finally{setSubmit(false);}
@@ -747,7 +778,13 @@
   }
 
   window.resetForm=function(){
+    window.isReCheckin = false;
     window.uploadedPhotoUrl="";
+    const sec = document.getElementById("reCheckinProofSection");
+    if(sec) sec.remove();
+    const uploadSection = document.getElementById("idUploadSection");
+    if(uploadSection) uploadSection.style.display = "";
+    window.uploadedUrls=[];
     const photoStatus=document.getElementById("photoStatus");
     if(photoStatus){photoStatus.style.display="none";}
     const photoPreview=document.getElementById("photoPreview");
@@ -769,31 +806,43 @@
     document.getElementById("checkinErr").style.display="none";
     document.getElementById("idOtherWrap").classList.remove("show");
     document.getElementById("roomTypeDisplay").textContent="No room type selected";
+    // Restore upload zone for fresh check-in
+    const uploadZone = document.getElementById("uploadZone");
+    if(uploadZone) uploadZone.style.display="block";
     document.querySelectorAll(".room-chip input").forEach(i=>i.checked=false);
     document.querySelectorAll(".room-chip").forEach(c=>c.classList.remove("selected"));
     window.uploadedUrl="";
   window.uploadedPhotoUrl="";
+    window.uploadedUrls=[];
   };
 
   // ── ID Upload ──
+  window.uploadedUrls = []; // store multiple ID proof URLs
   window.uploadId=async function(input){
-    const file=input.files[0]; if(!file) return;
+    const files=Array.from(input.files); if(!files.length) return;
     const st=document.getElementById("uploadStatus");
-    st.style.display="block"; st.textContent="⏳ Uploading..."; st.style.color="var(--clay)";
-    try{
-      const fd=new FormData(); fd.append("image",file);
-      const res=await fetch(`https://api.imgbb.com/1/upload?key=${IMGBB_API_KEY}`,{method:"POST",body:fd});
-      const data=await res.json();
-      if(data.success){
-        window.uploadedUrl=data.data.url;
-        st.textContent="✓ Uploaded successfully"; st.style.color="var(--success)";
-        document.getElementById("idPreviewImg").src=window.uploadedUrl;
-        document.getElementById("idPreview").style.display="block";
-      } else throw new Error();
-    } catch(e){
-      st.textContent="⚠ Upload failed — check ImgBB API key in firebase-config.js";
-      st.style.color="var(--danger)";
+    const preview=document.getElementById("idPreview");
+    st.style.display="block"; st.style.color="var(--clay)";
+    const newUrls=[];
+    for(let i=0;i<files.length;i++){
+      st.textContent=`⏳ Uploading file ${i+1} of ${files.length}...`;
+      try{
+        const fd=new FormData(); fd.append("image",files[i]);
+        const res=await fetch(`https://api.imgbb.com/1/upload?key=${IMGBB_API_KEY}`,{method:"POST",body:fd});
+        const data=await res.json();
+        if(data.success) newUrls.push(data.data.url);
+        else throw new Error();
+      } catch(e){ st.textContent=`⚠ Upload failed for file ${i+1}`; st.style.color="var(--danger)"; }
     }
+    window.uploadedUrls=[...window.uploadedUrls,...newUrls];
+    window.uploadedUrl=window.uploadedUrls[0]; // keep first URL for backward compat
+    st.textContent=`✓ ${window.uploadedUrls.length} file(s) uploaded`; st.style.color="var(--success)";
+    preview.style.display="block";
+    preview.innerHTML=window.uploadedUrls.map((url,i)=>`
+      <div style="display:inline-block;margin:4px">
+        <img src="${url}" style="width:80px;height:60px;object-fit:cover;border-radius:6px;border:1px solid var(--border)"/>
+        <div style="font-size:10px;text-align:center;color:var(--text3)">Doc ${i+1}</div>
+      </div>`).join("");
   };
   const zone=document.getElementById("uploadZone");
   zone.addEventListener("dragover",e=>{e.preventDefault();zone.classList.add("drag");});
@@ -832,6 +881,8 @@
     const g=window.allGuests.find(x=>x.id===id); if(!g) return;
     window.currentGuestId=id;
     document.getElementById("checkoutBtn").style.display=g.status==="checked-in"?"flex":"none";
+    const rcBtn = document.getElementById("recheckinBtn");
+    if(rcBtn) rcBtn.style.display=g.status==="checked-out"?"inline-flex":"none";
     document.getElementById("modalBody").innerHTML=`
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:18px">
         <div>
@@ -859,14 +910,18 @@
         <div>
           <p style="font-size:11px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:var(--clay);margin-bottom:8px">Identity Proof</p>
           ${r("Type",g.idProofType||"Not Provided")}${r("Number",g.idProofNumber||"–")}
-          ${g.idProofUrl?`
-            <div class="proof-actions">
-              <img src="${g.idProofUrl}" class="proof-thumb" onclick="window.open('${g.idProofUrl}','_blank')" title="Click to enlarge"/>
-              <div style="display:flex;flex-direction:column;gap:6px">
-                <a href="${g.idProofUrl}" target="_blank" download class="btn btn-primary btn-sm">⬇ Download Proof</a>
-                <a href="${g.idProofUrl}" target="_blank" class="btn btn-outline btn-sm">👁 View Full Size</a>
-              </div>
-            </div>`:`<p style="font-size:13px;color:var(--text3);margin-top:6px">No proof uploaded</p>`}
+          ${(()=>{
+            const urls = (g.idProofUrls&&g.idProofUrls.length) ? g.idProofUrls : (g.idProofUrl ? [g.idProofUrl] : []);
+            if(!urls.length) return '<p style="font-size:13px;color:var(--text3);margin-top:6px">No proof uploaded</p>';
+            return '<div style="display:flex;flex-direction:column;gap:8px;margin-top:8px">'
+              + urls.map((url,i)=>`
+                <div style="display:flex;align-items:center;gap:10px;padding:8px 12px;background:var(--sand);border-radius:8px;border:1px solid var(--border)">
+                  <span style="font-size:13px">📄 ID Proof ${urls.length>1?i+1:""}</span>
+                  <a href="${url}" target="_blank" download class="btn btn-primary btn-sm" style="margin-left:auto">⬇ Download</a>
+                  <a href="${url}" target="_blank" class="btn btn-outline btn-sm">👁 View</a>
+                </div>`).join("")
+              + '</div>';
+          })()}
         </div>
         ${g.notes?`<div style="grid-column:1/-1"><p style="font-size:11px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:var(--clay);margin-bottom:8px">Notes</p><p style="font-size:14px;color:var(--text2)">${g.notes}</p></div>`:""}
       </div>`;
@@ -1080,7 +1135,204 @@ For any queries, please call us or reply to this message.
     } catch(e) { alert("Error declining booking: " + e.message); }
   };
 
-  setTimeout(()=>renderAudit(window.allGuests),1200);
+  // ── Re-checkin ──
+  window.reCheckin = function(id) {
+    const g = window.allGuests.find(x=>x.id===id);
+    if(!g) return;
+    window.isReCheckin = true;
+    closeModal();
+    showPage("checkin");
+    setTimeout(function(){
+      document.getElementById("gName").value     = g.name||"";
+      document.getElementById("gPhone").value    = g.phone||"";
+      document.getElementById("gEmail").value    = g.email||"";
+      document.getElementById("gAddress").value  = g.address||"";
+      document.getElementById("gPurpose").value  = g.purpose||"";
+      document.getElementById("gAdults").value   = g.adults||g.guestCount||1;
+      document.getElementById("gChildren").value = g.children||0;
+      document.getElementById("gRoom").value     = "";
+      document.getElementById("gRoomType").value  = g.roomType||"";
+      if(document.getElementById("gIdType")) document.getElementById("gIdType").value = g.idProofType||"";
+      document.getElementById("gIdNumber").value = g.idProofNumber||"";
+      updateRoomType();
+
+      var urls = (g.idProofUrls&&g.idProofUrls.length) ? g.idProofUrls : (g.idProofUrl ? [g.idProofUrl] : []);
+      window.uploadedUrl  = urls[0]||"";
+      window.uploadedUrls = urls;
+
+      var sec = document.getElementById("idUploadSection");
+      var old = document.getElementById("rcProof");
+      if(old) old.remove();
+
+      if(urls.length && sec){
+        sec.style.display = "none";
+        var div = document.createElement("div");
+        div.id = "rcProof";
+        div.style.cssText = "grid-column:1/-1;padding:12px 16px;background:#f0fdf4;border:1.5px solid #86efac;border-radius:10px";
+        var html = "<div style='font-size:12px;font-weight:700;color:#166534;margin-bottom:8px'>✅ ID Proof from previous check-in</div><div style='display:flex;flex-direction:column;gap:6px'>";
+        for(var i=0;i<urls.length;i++){
+          html += "<div style='display:flex;align-items:center;gap:10px;padding:8px 12px;background:white;border:1px solid #86efac;border-radius:8px'>"
+                + "<span style='font-size:13px;color:#166534;flex:1'>📄 ID Proof " + (urls.length>1?(i+1):"") + "</span>"
+                + "<a href='" + urls[i] + "' target='_blank' download style='padding:5px 10px;background:#166534;color:white;border-radius:6px;font-size:12px;text-decoration:none'>⬇ Download</a>"
+                + "<a href='" + urls[i] + "' target='_blank' style='padding:5px 10px;background:white;color:#166534;border:1px solid #86efac;border-radius:6px;font-size:12px;text-decoration:none'>👁 View</a>"
+                + "</div>";
+        }
+        html += "</div>"
+          + "<div style='margin-top:12px;padding-top:12px;border-top:1px dashed #86efac'>"
+          + "<div style='font-size:12px;font-weight:600;color:var(--text2);margin-bottom:8px'>📎 Upload Additional Document <span style='font-weight:400;color:var(--text3)'>(optional)</span></div>"
+          + "<div class='upload-zone' id='rcExtraUploadZone' style='padding:16px;text-align:center;cursor:pointer' onclick=\"document.getElementById('rcExtraFile').click()\">"
+          + "<input type='file' id='rcExtraFile' accept='image/*,application/pdf' multiple style='display:none'/>"
+          + "<div style='font-size:20px;margin-bottom:4px'>📎</div>"
+          + "<div style='font-size:13px;color:var(--text2)'>Click to upload additional documents</div>"
+          + "<div style='font-size:11px;color:var(--text3)'>JPG, PNG, PDF — optional</div>"
+          + "</div>"
+          + "<div id='rcExtraStatus' style='font-size:13px;margin-top:6px;display:none'></div>"
+          + "<div id='rcExtraPreview' style='margin-top:8px;display:flex;flex-wrap:wrap;gap:6px'></div>"
+          + "</div>";
+        div.innerHTML = html;
+        sec.parentNode.insertBefore(div, sec);
+
+        // Handle additional file upload
+        document.getElementById("rcExtraFile").onchange = async function(){
+          var files = Array.from(this.files); if(!files.length) return;
+          var st = document.getElementById("rcExtraStatus");
+          var preview = document.getElementById("rcExtraPreview");
+          st.style.display="block"; st.style.color="var(--clay)";
+          for(var j=0;j<files.length;j++){
+            st.textContent = "⏳ Uploading " + (j+1) + " of " + files.length + "...";
+            try{
+              var fd = new FormData(); fd.append("image", files[j]);
+              var res = await fetch("https://api.imgbb.com/1/upload?key=" + IMGBB_API_KEY, {method:"POST",body:fd});
+              var data = await res.json();
+              if(data.success){
+                window.uploadedUrls.push(data.data.url);
+                if(!window.uploadedUrl) window.uploadedUrl = data.data.url;
+                preview.innerHTML += "<a href='" + data.data.url + "' target='_blank' style='font-size:11px;color:var(--clay);padding:3px 8px;background:var(--sand);border-radius:4px;text-decoration:none'>📄 Doc " + window.uploadedUrls.length + "</a>";
+              }
+            } catch(e){ st.textContent="⚠ Upload failed"; st.style.color="var(--danger)"; }
+          }
+          st.textContent = "✓ " + window.uploadedUrls.length + " total proof file(s) ready";
+          st.style.color = "var(--success)";
+        };
+      } else if(sec){
+        sec.style.display = "";
+      }
+      toast("Details loaded — select room and update dates","info");
+    }, 500);
+  };
+
+    // ── Edit Guest — show inline edit form in modal ──
+  window.editGuest = function() {
+    const id = window.currentGuestId;
+    if(!id) return;
+    const g = window.allGuests.find(x=>x.id===id);
+    if(!g) return;
+    document.getElementById("editGuestBtn").style.display="none";
+    document.getElementById("checkoutBtn").style.display="none";
+    document.getElementById("modalBody").innerHTML=`
+      <div style="display:flex;flex-direction:column;gap:14px">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+          <div class="form-group">
+            <label>Full Name *</label>
+            <input type="text" id="eg_name" value="${g.name||""}" class="form-group input"/>
+          </div>
+          <div class="form-group">
+            <label>Phone *</label>
+            <input type="text" id="eg_phone" value="${g.phone||""}"/>
+          </div>
+          <div class="form-group">
+            <label>Email</label>
+            <input type="text" id="eg_email" value="${g.email||""}"/>
+          </div>
+          <div class="form-group">
+            <label>Address</label>
+            <input type="text" id="eg_address" value="${g.address||""}"/>
+          </div>
+          <div class="form-group">
+            <label>Room Number</label>
+            <input type="text" id="eg_room" value="${g.roomNumber||""}"/>
+          </div>
+          <div class="form-group">
+            <label>Purpose</label>
+            <input type="text" id="eg_purpose" value="${g.purpose||""}"/>
+          </div>
+          <div class="form-group">
+            <label>Check-in Date</label>
+            <input type="datetime-local" id="eg_checkin" value="${g.checkinDate||""}"/>
+          </div>
+          <div class="form-group">
+            <label>Check-out Date</label>
+            <input type="datetime-local" id="eg_checkout" value="${g.checkoutDate||""}"/>
+          </div>
+          <div class="form-group">
+            <label>Amount Charged (₹)</label>
+            <input type="number" id="eg_amount" value="${g.amount||""}"/>
+          </div>
+          <div class="form-group">
+            <label>Payment Status</label>
+            <select id="eg_paystatus">
+              <option value="Pending" ${g.payStatus==="Pending"?"selected":""}>Pending</option>
+              <option value="Paid" ${g.payStatus==="Paid"?"selected":""}>Paid</option>
+              <option value="Partial" ${g.payStatus==="Partial"?"selected":""}>Partial</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Adults</label>
+            <input type="number" id="eg_adults" value="${g.adults||g.guestCount||1}" min="1"/>
+          </div>
+          <div class="form-group">
+            <label>Children</label>
+            <input type="number" id="eg_children" value="${g.children||0}" min="0"/>
+          </div>
+          <div class="form-group">
+            <label>ID Proof Type</label>
+            <input type="text" id="eg_idtype" value="${g.idProofType||""}"/>
+          </div>
+          <div class="form-group">
+            <label>ID Proof Number</label>
+            <input type="text" id="eg_idnum" value="${g.idProofNumber||""}"/>
+          </div>
+        </div>
+        <div class="form-group" style="grid-column:1/-1">
+          <label>Notes</label>
+          <textarea id="eg_notes" rows="2" style="width:100%;padding:10px;border:1.5px solid var(--border);border-radius:8px;font-family:var(--font-body);font-size:13px;resize:none">${g.notes||""}</textarea>
+        </div>
+        <div style="display:flex;gap:10px;justify-content:flex-end;margin-top:8px">
+          <button class="btn btn-outline" onclick="viewGuest('${id}')">Cancel</button>
+          <button class="btn btn-primary" onclick="saveEditGuest('${id}')">💾 Save Changes</button>
+        </div>
+      </div>`;
+  };
+
+  window.saveEditGuest = async function(id) {
+    const updates = {
+      name:     document.getElementById("eg_name").value.trim(),
+      phone:    document.getElementById("eg_phone").value.trim(),
+      email:    document.getElementById("eg_email").value.trim(),
+      address:  document.getElementById("eg_address").value.trim(),
+      roomNumber: document.getElementById("eg_room").value.trim(),
+      purpose:  document.getElementById("eg_purpose").value.trim(),
+      checkinDate:  document.getElementById("eg_checkin").value.trim(),
+      checkoutDate: document.getElementById("eg_checkout").value.trim(),
+      amount:   parseFloat(document.getElementById("eg_amount").value)||null,
+      payStatus: document.getElementById("eg_paystatus").value,
+      adults:   parseInt(document.getElementById("eg_adults").value)||1,
+      children: parseInt(document.getElementById("eg_children").value)||0,
+      idProofType:   document.getElementById("eg_idtype").value.trim(),
+      idProofNumber: document.getElementById("eg_idnum").value.trim(),
+      notes:    document.getElementById("eg_notes").value.trim(),
+    };
+    if(!updates.name||!updates.phone){toast("Name and Phone are required","error");return;}
+    try{
+      const {doc,updateDoc}=await import("https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js");
+      await updateDoc(doc(db,COLLECTIONS.GUESTS,id),updates);
+      await loadGuests(); renderDashboard(); filterGuests(); renderRooms();
+      viewGuest(id);
+      toast("Guest details updated successfully!","success");
+    }catch(e){toast("Update failed: "+e.message,"error");}
+  };
+
+    setTimeout(()=>renderAudit(window.allGuests),1200);
 </script>
 </body>
 </html>
